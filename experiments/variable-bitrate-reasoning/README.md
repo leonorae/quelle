@@ -5,7 +5,7 @@ status: planning
 owner: unassigned
 created: 2026-02-28
 depends_on: []
-tags: [compression, geometry, transformer, arithmetic]
+tags: [compression, geometry, transformer, arithmetic, dsd, gumbel-softmax]
 ---
 
 # Variable-Bitrate Reasoning with Geometric Self-Awareness
@@ -20,7 +20,8 @@ no reinforcement learning.
 
 ## Specification
 
-Full implementation spec lives in the top-level `README.md`.
+- **Implementation spec** (architecture, training loop, metrics): top-level `README.md`
+- **Research context** (related work, novelty, feasibility, risks): top-level `LATENT.md`
 
 ## Status
 
@@ -40,13 +41,25 @@ Implementation checklist (from spec):
 - [ ] Baseline implementations (fixed-high, fixed-low, random, no-compression)
 - [ ] Visualization (PCA/UMAP, scatter plots)
 
+## Risks and Mitigations
+
+| Risk | Mitigation |
+|------|------------|
+| Model ignores λ_t | Add small entropy bonus to encourage variation |
+| Representation collapse | DSD stop-gradient prevents collapse; monitor latent variance |
+| No correlation with concentration | Still informative — null result is a finding |
+| λ_t saturates at extremes | Adjust α/β init; add temperature annealing |
+
 ## Success Criteria
 
-1. Training converges (loss decreases stably).
-2. Lambda shows negative correlation with concentration (r < -0.3).
-3. Adaptive compression outperforms fixed baselines on hard problems.
+1. λ_t negatively correlated with concentration (r < -0.3).
+2. Adaptive compression outperforms fixed baselines on hard problems.
+3. Future prediction loss decreases stably.
 4. UMAP reveals distinct clusters for different step types.
 5. Linear probes predict storage requirement from hidden states (>60% accuracy).
+
+Even partial success (e.g. correlation exists but no accuracy gain) is informative
+and worth documenting in `RESULTS.md`.
 
 ## Directory Layout
 
@@ -68,8 +81,14 @@ variable-bitrate-reasoning/
 └── .gitignore
 ```
 
+## Related Work
+
+See `wiki/concepts/related-work.md` for summaries of the six papers that
+directly inform this experiment (latent vocabulary superposition, LT-Tuning,
+TRAAC, GAIN-RL, Geometry of Thought, DCoLT).
+
 ## Open Questions
 
-- Two-pass vs. single-pass forward for future prediction target (see spec Note 2).
-- Whether to start with hard threshold gradient bypass if Gumbel-Softmax is
-  unstable, then switch.
+- Two-pass vs. single-pass forward for future prediction target (see `LATENT.md` §4.3 and `README.md` Note 2).
+- Whether to start with hard-threshold gradient bypass if Gumbel-Softmax is
+  unstable, then switch once training is stable.
