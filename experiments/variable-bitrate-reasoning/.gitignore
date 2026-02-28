@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+*.pth
+*.ckpt
+data/raw/
+data/generated/
+outputs/checkpoints/
+outputs/cache/
+outputs/runs/
+.env
+*.egg-info/
+.DS_Store
