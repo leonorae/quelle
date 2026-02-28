@@ -1,0 +1,49 @@
+# Default hyperparameters — Variable-Bitrate Reasoning experiment
+# Edit freely; commit named variants as separate files (e.g. ablation_nodsd.yaml)
+
+seed: 42
+
+model:
+  d_model: 128
+  n_layers: 4
+  n_heads: 4
+  dropout: 0.1
+
+compression:
+  alpha_init: 2.0
+  beta_init: 0.5
+  temperature: 1.0      # Gumbel-Softmax temperature
+
+data:
+  num_train: 10000
+  num_test: 1000
+  max_depth: 5          # max nesting depth for arithmetic expressions
+  min_depth: 2
+  number_range: [1, 20]
+
+training:
+  epochs: 10
+  batch_size: 32
+  lr: 1e-4
+  lm_loss_weight: 1.0
+  future_loss_weight: 0.1
+  curvature_loss_weight: 0.01
+  log_every: 100        # steps between log lines
+
+eval:
+  small_sample_size: 100  # for geometric analysis (PCA/UMAP)
+  baselines:
+    - name: fixed_high
+      lambda: 0.8
+    - name: fixed_low
+      lambda: 0.2
+    - name: random
+      lambda: null       # sampled uniform per step
+    - name: no_compression
+      lambda: 0.0
+  n_seeds: 3
+
+output:
+  log_dir: outputs/logs
+  checkpoint_dir: outputs/checkpoints
+  plot_dir: outputs/plots
