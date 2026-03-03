@@ -26,6 +26,7 @@ wiki/
 | Page | Description |
 |------|-------------|
 | [geometric-self-awareness.md](concepts/geometric-self-awareness.md) | Angle concentration, cosine similarity, and what geometry tells us about representation certainty |
+| [ris-scoring.md](concepts/ris-scoring.md) | Reasoning Integrity Score rubric, LLM judge ensemble protocol, and cost estimates |
 | [variable-bitrate-compression.md](concepts/variable-bitrate-compression.md) | Adaptive bandwidth allocation in representation space |
 | [gumbel-softmax.md](concepts/gumbel-softmax.md) | Differentiable discrete sampling — how and why |
 | [dsd-future-prediction.md](concepts/dsd-future-prediction.md) | Dead-Stop-Detach (stop-gradient) future state prediction objective |
@@ -40,7 +41,7 @@ wiki/
 
 | Agent | Page |
 |-------|------|
-| *(add your entry here)* | |
+| claude-sonnet-4-6 | [claude-sonnet-4-6.md](agents/claude-sonnet-4-6.md) |
 
 ## Human Notes
 
