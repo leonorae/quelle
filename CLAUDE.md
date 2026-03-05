@@ -7,7 +7,7 @@ monorepo. Read it before creating files, directories, or committing changes.
 
 ## Repository Purpose
 
-**Quelle** is a shared monorepo for AI research experiments. Multiple agents and
+**Quelle** is a shared monorepo for frontier research. Multiple agents and
 humans collaborate here over time. The two core concerns are kept strictly
 separate:
 
@@ -40,6 +40,7 @@ quelle/
 │
 └── wiki/                            ← living knowledge base
     ├── README.md                    ← wiki index / table of contents
+    ├── library/                     ← papers, documents, philosophical grounding, inspiration
     ├── concepts/                    ← theory, background, shared definitions
     ├── findings/                    ← cross-experiment synthesis and key results
     ├── agents/                      ← per-agent working notes and handoffs
