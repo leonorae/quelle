@@ -3,7 +3,7 @@
 > Background concept for understanding what the angle concentration metric
 > measures and why it might proxy for representational certainty.
 
-**Relevant experiments**: `variable-bitrate-reasoning`
+**Relevant experiments**: `variable-bitrate-reasoning`, `geometric-self-awareness-reasoning`
 
 ---
 
@@ -46,6 +46,23 @@ This is analogous to entropy in information theory: when the model's
 representations are geometrically uniform (low entropy in direction space),
 less bandwidth is needed to transmit the state forward in time.
 
+## Trajectory Geometry (used in `geometric-self-awareness-reasoning`)
+
+Beyond per-step concentration, we measure how the *centroid* of a step's token
+representations moves through hidden-state space across reasoning steps:
+
+| Feature | Definition |
+|---------|-----------|
+| **Velocity** | `‖ c_t - c_{t-1} ‖₂` — how far the centroid moved between steps |
+| **Curvature** | Menger curvature of three consecutive centroids `c_{t-1}, c_t, c_{t+1}` — detects sharp direction changes |
+| **Manifold dim** | Intrinsic dimensionality of token vectors within a step, estimated via PCA or MLE — proxy for effective degrees of freedom |
+| **Centroid distance** | Distance from `c_t` to the centroid of the "correct-answer" manifold vs. the "incorrect-answer" manifold |
+
+The hypothesis (Geometry of Reasoning, arXiv:2510.09782) is that high-quality
+reasoning steps exhibit smooth, low-curvature trajectories in a
+low-dimensional manifold, while errors produce abrupt curvature spikes or
+high-velocity jumps.
+
 ## References
 
 - Cosine similarity as a proxy for semantic overlap: standard NLP practice.
@@ -53,3 +70,7 @@ less bandwidth is needed to transmit the state forward in time.
   directional statistics.
 - Related to "representation collapse" concerns in contrastive learning (SimCLR,
   BYOL), but here collapse is seen as a *signal* rather than a failure mode.
+- Geometry of Reasoning (arXiv:2510.09782) — defines velocity, curvature, and
+  flow similarity for reasoning trajectories.
+- Confidence Manifold (arXiv:2602.08159) — correctness lives in a
+  low-dimensional subspace; centroid distance is a zero-shot predictor.
