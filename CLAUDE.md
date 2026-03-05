@@ -152,4 +152,5 @@ them without changes.
 
 wishlist:
 - StumpWM/emacs env integration, chat logging, PDF annotating/tagging, (Agentic research OS)
-
+- fast way for me to associate open questions with research, detection of a question being answered (or relevant findings)
+- context-aware agentic management of these
