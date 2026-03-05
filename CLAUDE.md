@@ -21,6 +21,10 @@ If you are writing down what you learned, it goes in `wiki/`.
 
 ---
 
+## Research Philosophy Primer
+TODO: write this section.
+for now, Claude agents should consult my user data for context on my methodology and philosophy when faced with making directorial decisions. If strictly implementing a defined specification, this is less important, particularly if you need your whole context for the task. However, I welcome questioning and re-steering at any time. I do not have metrics or quotas to meet, I do not have a need to appear directed or justify failures, I seek only truth.
+
 ## Directory Layout
 
 ```
