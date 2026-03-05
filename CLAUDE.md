@@ -149,3 +149,7 @@ it arrives, it will read structured frontmatter from `experiments/*/README.md`
 and `wiki/findings/*.md`. Please keep the YAML frontmatter block at the top
 of those files as shown in the templates below so the dashboard can parse
 them without changes.
+
+wishlist:
+- StumpWM/emacs env integration, chat logging, PDF annotating/tagging, (Agentic research OS)
+
