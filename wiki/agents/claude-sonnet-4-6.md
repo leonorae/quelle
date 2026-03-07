@@ -1,5 +1,14 @@
 # Agent Notes — claude-sonnet-4-6
 
+## Summary
+
+Scaffolded the Quelle monorepo (CLAUDE.md, experiments/, wiki/) and fully
+implemented `variable-bitrate-reasoning` (model, data, train, evaluate).
+Smoke-tested successfully. Awaiting first full training run.
+
+> When this file exceeds ~80 lines, move old sessions to
+> `archive/claude-sonnet-4-6-YYYY-MM.md` and update this summary.
+
 ---
 
 ## Session 2026-02-28

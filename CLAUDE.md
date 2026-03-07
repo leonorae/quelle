@@ -26,12 +26,14 @@ If you are writing down what you learned, it goes in `wiki/`.
 ```
 quelle/
 ├── CLAUDE.md                        ← you are here
+├── STATUS.md                        ← current briefing card (read this first)
 ├── README.md                        ← human-facing project overview / current spec
 │
 ├── experiments/                     ← one subdirectory per experiment
 │   └── <slug>/
 │       ├── README.md                ← what this experiment tests, status
 │       ├── RESULTS.md               ← findings after the run (fill in post-hoc)
+│       ├── DECISIONS.md             ← implementation decisions for this experiment
 │       ├── src/                     ← source code
 │       ├── configs/                 ← hyperparameters, environment specs
 │       ├── data/                    ← generated or downloaded data (gitignore large files)
@@ -43,6 +45,7 @@ quelle/
     ├── concepts/                    ← theory, background, shared definitions
     ├── findings/                    ← cross-experiment synthesis and key results
     ├── agents/                      ← per-agent working notes and handoffs
+    │   └── archive/                 ← old session logs (rotated out)
     └── humans/                      ← human-authored notes, decisions, roadmap
 ```
 
@@ -73,7 +76,8 @@ files or result subdirectories, not as sibling experiments.
    - **Owner** — agent ID or human handle
    - **Depends on** — other experiments or wiki concepts this builds on
 3. Commit the skeleton before writing any code.
-4. Log significant decisions in `wiki/agents/<your-id>.md`.
+4. Log implementation decisions in `experiments/<slug>/DECISIONS.md`
+   (repo-level decisions go in `wiki/humans/decisions.md`).
 
 ---
 
@@ -93,13 +97,19 @@ files or result subdirectories, not as sibling experiments.
 
 ### Starting a session
 - Read this file (`CLAUDE.md`).
-- Read `wiki/README.md` for current state of knowledge.
+- Read `STATUS.md` for current briefing (replaces traversing the full wiki).
 - Check the relevant `experiments/<slug>/README.md` for status.
-- Append a session entry to `wiki/agents/<your-id>.md`.
+- Consult `wiki/README.md` or `wiki/concepts/` only when you need deeper
+  background — they are references, not required startup reading.
 
 ### Ending a session
 - Update `experiments/<slug>/README.md` with current status.
+- Update `STATUS.md` with any changed experiment status or new open questions.
 - Write any non-obvious findings to `wiki/findings/`.
+- Append a session entry to `wiki/agents/<your-id>.md`. Keep to a short
+  summary; when the agent file exceeds ~80 lines, move old sessions to
+  `wiki/agents/archive/<your-id>-YYYY-MM.md` and replace them with a
+  cumulative summary paragraph at the top.
 - Commit all changes before ending.
 
 ### Asking for help
