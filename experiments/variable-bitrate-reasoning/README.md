@@ -21,7 +21,7 @@ no reinforcement learning.
 ## Specification
 
 - **Implementation spec** (architecture, training loop, metrics): top-level `README.md`
-- **Research context** (related work, novelty, feasibility, risks): top-level `LATENT.md`
+- **Research context** (related work, novelty, feasibility, risks): `wiki/humans/latent-research-context.md`
 
 ## Status
 
@@ -89,6 +89,6 @@ TRAAC, GAIN-RL, Geometry of Thought, DCoLT).
 
 ## Open Questions
 
-- Two-pass vs. single-pass forward for future prediction target (see `LATENT.md` §4.3 and `README.md` Note 2).
+- Two-pass vs. single-pass forward for future prediction target (see `wiki/humans/latent-research-context.md` §4.3 and top-level `README.md` Note 2).
 - Whether to start with hard-threshold gradient bypass if Gumbel-Softmax is
   unstable, then switch once training is stable.

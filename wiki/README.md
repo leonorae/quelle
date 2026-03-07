@@ -49,6 +49,7 @@ wiki/
 |-------|------|
 | [roadmap.md](humans/roadmap.md) | Project roadmap and planned experiments |
 | [decisions.md](humans/decisions.md) | Design decisions and rationale log |
+| [latent-research-context.md](humans/latent-research-context.md) | Research positioning and feasibility assessment for `variable-bitrate-reasoning` |
 
 ---
 
