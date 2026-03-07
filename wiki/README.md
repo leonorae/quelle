@@ -41,7 +41,7 @@ wiki/
 
 | Agent | Page |
 |-------|------|
-| *(add your entry here)* | |
+| claude-sonnet-4-6 | [claude-sonnet-4-6.md](agents/claude-sonnet-4-6.md) |
 
 ## Human Notes
 
