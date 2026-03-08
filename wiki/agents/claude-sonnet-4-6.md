@@ -1,5 +1,14 @@
 # Agent Notes — claude-sonnet-4-6
 
+## Summary
+
+Scaffolded the Quelle monorepo (CLAUDE.md, experiments/, wiki/) and fully
+implemented `variable-bitrate-reasoning` (model, data, train, evaluate).
+Smoke-tested successfully. Awaiting first full training run.
+
+> When this file exceeds ~80 lines, move old sessions to
+> `archive/claude-sonnet-4-6-YYYY-MM.md` and update this summary.
+
 ---
 
 ## Session 2026-02-28
@@ -20,64 +29,35 @@
 **Status at end of session**: Scaffold complete. Implementation stubs in place.
 No code has been run yet. Ready for an implementation agent to pick up.
 
-## Handoff Notes
+~~Handoff Notes~~ — all stubs implemented as of 2026-03-07 session (see below).
 
-The experiment spec lives entirely in the top-level `README.md`. The stubs in
-`src/` expose the intended interfaces; the primary gaps are:
-
-1. `src/model.py` — `VariableRateReasoner.forward()` needs the layer-by-layer
-   loop with compression and stat collection.
-2. `src/data.py` — `generate_arithmetic_problem()` needs the recursive
-   expression generator.
-3. `src/evaluate.py` and `src/visualize.py` — fully stubbed, implement after
-   training works.
-
-## Open Questions
-
-- Two-pass vs. single-pass forward for future prediction target (spec Note 2).
-  Currently defaulting to single-pass. Flag for human decision if results are
-  suspicious.
+~~Open Questions~~ — both resolved; see experiment README and decisions.md 2026-03-07.
 
 ---
 
-## Session 2026-03-03
+## Session 2026-03-07
 
-**Branch**: `claude/agent-context-document-YMpBX`
+**Branch**: `claude/setup-experiments-directory-x5kqf` (merged)
 
 **Work done**:
-- Created `experiments/geometric-self-awareness-reasoning/` — full directory
-  skeleton per CLAUDE.md conventions.
-- Wrote `CONTEXT.md` — comprehensive context document for an implementer agent
-  covering the big-picture vision, Phase 0B–3 protocol, geometric metrics,
-  RIS rubric, RLM connection, references, and success criteria.
-- Wrote `src/phase0b_generate_traces.py` — complete, production-ready
-  generation script (resumable, crash-safe, chat-template-aware, summary
-  report included).
-- Wrote stub scripts for Phases 1–3 (`phase1_ris_scoring.py`,
-  `phase2_extract_geometry.py`, `phase3_analysis.py`).
-- Added `configs/phase0b.yaml` with all generation hyperparameters.
-- Created `wiki/concepts/ris-scoring.md` — RIS rubric, judge ensemble
-  protocol, prompt template, cost estimate.
-- Updated `wiki/README.md` — added RIS concept page and agent table entry.
-- Updated `wiki/humans/roadmap.md` — added new experiment to planned list.
+- `src/data.py`: `_gen_expr()` recursive binary-tree generator; `collate_fn`
+  concatenates problem + answer + EOS tokens, pads to batch max length, returns
+  `(padded_ids, prob_lengths, difficulties)`.
+- `src/model.py`: per-example `concentration()` → `(B,)` tensor; `compress()`
+  with per-example `lambda_t` broadcast over dimension axis; `VariableRateReasoner`
+  using individual `TransformerEncoderLayer` modules for intermediate state access;
+  causal + float padding masks; post-norm `LayerNorm`; `_init_weights`.
+- `src/train.py`: causal LM training with answer-only loss mask (via
+  `prob_lengths`), curvature penalty weighted by per-example `(1 - conc)`,
+  gradient clipping (max_norm=1.0), CSV logging flushed every step.
+- `src/evaluate.py`: greedy generation, per-difficulty accuracy, λ–concentration
+  Pearson r with r < -0.3 criterion, baseline comparison via deep-copy +
+  compression-head override.
+- `configs/default.yaml`: added `model.max_seq_len: 128`; fixed `lr` to
+  `0.0001` (PyYAML parses `1e-4` as a string).
 
-**Experiments touched**: `geometric-self-awareness-reasoning` (skeleton + context committed)
+**Experiments touched**: `variable-bitrate-reasoning` (planning → running)
 
-**Status at end of session**: Experiment skeleton and context document complete.
-Phase 0B script ready to run. Phases 1–3 are stubs. No code has been executed.
-
-## Handoff Notes
-
-The implementer agent should:
-1. Read `experiments/geometric-self-awareness-reasoning/CONTEXT.md` first.
-2. Run `src/phase0b_generate_traces.py` with a 24GB+ GPU and Qwen2.5-7B-Instruct.
-3. Verify pass@1 > 70% on the 1000-problem pilot.
-4. Update `RESULTS.md` Phase 0B section and commit.
-5. Proceed to Phase 1 (RIS scoring) once traces are clean.
-
-## Open Questions (from this session)
-
-- GPU availability for the implementer running Phase 0B.
-- Whether to use vLLM (speed) or plain Transformers (simplicity) for generation.
-- Phase 1 API budget and which LLM judge provider (OpenRouter vs. Together.ai).
-- Whether ProcessBench/PRMBench should complement or replace GSM8K.
+**Status at end of session**: All `src/` stubs implemented except `visualize.py`.
+Smoke-tested: 8-step training run passes, forward + backward verified.
+Ready to run full training (`python3.11 -m src.train --config configs/default.yaml`).

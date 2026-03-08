@@ -1,9 +1,10 @@
 ---
 title: Variable-Bitrate Reasoning with Geometric Self-Awareness
 slug: variable-bitrate-reasoning
-status: planning
-owner: unassigned
+status: running
+owner: claude-sonnet-4-6
 created: 2026-02-28
+implemented: 2026-03-07
 depends_on: []
 tags: [compression, geometry, transformer, arithmetic, dsd, gumbel-softmax]
 ---
@@ -21,25 +22,25 @@ no reinforcement learning.
 ## Specification
 
 - **Implementation spec** (architecture, training loop, metrics): top-level `README.md`
-- **Research context** (related work, novelty, feasibility, risks): top-level `LATENT.md`
+- **Research context** (related work, novelty, feasibility, risks): `wiki/humans/latent-research-context.md`
 
 ## Status
 
-`planning`
+`running` — code implemented 2026-03-07, awaiting first full training run.
 
-Implementation checklist (from spec):
+Implementation checklist:
 
-- [ ] Tokenizer for arithmetic expressions
-- [ ] Dataset generator with difficulty labels
-- [ ] Transformer (4 layers, 4 heads, d=128)
-- [ ] Compression head with differentiable dimension selection (Gumbel-Softmax)
-- [ ] Concentration computation
-- [ ] Learnable alpha/beta parameters
-- [ ] Training loop with all three losses
-- [ ] Logging infrastructure (CSV or TensorBoard)
-- [ ] Evaluation script with metrics
-- [ ] Baseline implementations (fixed-high, fixed-low, random, no-compression)
-- [ ] Visualization (PCA/UMAP, scatter plots)
+- [x] Tokenizer for arithmetic expressions
+- [x] Dataset generator with difficulty labels
+- [x] Transformer (4 layers, 4 heads, d=128)
+- [x] Compression head with differentiable dimension selection (soft-sigmoid)
+- [x] Concentration computation (per-example, returns `(B,)` tensor)
+- [x] Learnable alpha/beta parameters
+- [x] Training loop with all three losses (LM + future + curvature)
+- [x] Logging infrastructure (CSV, written every `log_every` steps)
+- [x] Evaluation script with metrics (accuracy by difficulty, λ–conc correlation)
+- [x] Baseline implementations (fixed-high, fixed-low, random, no-compression)
+- [ ] Visualization (PCA/UMAP, scatter plots) — `src/visualize.py` still stub
 
 ## Risks and Mitigations
 
@@ -89,6 +90,8 @@ TRAAC, GAIN-RL, Geometry of Thought, DCoLT).
 
 ## Open Questions
 
-- Two-pass vs. single-pass forward for future prediction target (see `LATENT.md` §4.3 and `README.md` Note 2).
-- Whether to start with hard-threshold gradient bypass if Gumbel-Softmax is
-  unstable, then switch once training is stable.
+- ~~Two-pass vs. single-pass forward~~ **Resolved**: single-pass implemented
+  (information leak noted; upgrade if results look suspicious — see
+  `wiki/humans/decisions.md` 2026-02-28).
+- ~~Hard-threshold fallback for Gumbel-Softmax~~ **Resolved**: not needed;
+  soft-sigmoid mask was stable in smoke-testing.
