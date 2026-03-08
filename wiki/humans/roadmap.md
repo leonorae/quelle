@@ -15,6 +15,7 @@
 
 | Slug | Idea | Priority |
 |------|------|----------|
+| `geometric-self-awareness-reasoning` | Do angle concentration + trajectory geometry predict reasoning quality (RIS) on GSM8K? Training-free, interpretable error detection. | **High** |
 | `gumbel-compression-ablation` | Ablate Gumbel-Softmax variants against the soft-sigmoid baseline | Medium |
 | `manifold-capability-probing` | Do distinct capabilities occupy separable manifolds? | Low |
 | `multi-task-vbr` | Extend variable-bitrate approach to multiple task types | Low |

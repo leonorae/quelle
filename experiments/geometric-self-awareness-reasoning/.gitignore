@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+*.pth
+*.ckpt
+data/raw/
+data/*.jsonl
+outputs/checkpoints/
+outputs/cache/
+outputs/plots/
+.env
+*.log

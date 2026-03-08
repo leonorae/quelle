@@ -7,7 +7,7 @@ monorepo. Read it before creating files, directories, or committing changes.
 
 ## Repository Purpose
 
-**Quelle** is a shared monorepo for AI research experiments. Multiple agents and
+**Quelle** is a shared monorepo for frontier research. Multiple agents and
 humans collaborate here over time. The two core concerns are kept strictly
 separate:
 
@@ -20,6 +20,10 @@ Never mix the two. If you are writing code that runs, it goes in `experiments/`.
 If you are writing down what you learned, it goes in `wiki/`.
 
 ---
+
+## Research Philosophy Primer
+TODO: write this section.
+for now, Claude agents should consult my user data for context on my methodology and philosophy when faced with making directorial decisions. If strictly implementing a defined specification, this is less important, particularly if you need your whole context for the task. However, I welcome questioning and re-steering at any time. I do not have metrics or quotas to meet, I do not have a need to appear directed or justify failures, I seek only truth.
 
 ## Directory Layout
 
@@ -42,6 +46,7 @@ quelle/
 │
 └── wiki/                            ← living knowledge base
     ├── README.md                    ← wiki index / table of contents
+    ├── library/                     ← papers, documents, philosophical grounding, inspiration
     ├── concepts/                    ← theory, background, shared definitions
     ├── findings/                    ← cross-experiment synthesis and key results
     ├── agents/                      ← per-agent working notes and handoffs
@@ -154,3 +159,8 @@ it arrives, it will read structured frontmatter from `experiments/*/README.md`
 and `wiki/findings/*.md`. Please keep the YAML frontmatter block at the top
 of those files as shown in the templates below so the dashboard can parse
 them without changes.
+
+wishlist:
+- StumpWM/emacs env integration, chat logging, PDF annotating/tagging, (Agentic research OS)
+- fast way for me to associate open questions with research, detection of a question being answered (or relevant findings)
+- context-aware agentic management of these
