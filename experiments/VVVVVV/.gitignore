@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+*.pth
+*.ckpt
+data/raw/
+outputs/checkpoints/
+outputs/cache/
+.env
+*.npz
+*.h5
+wandb/
