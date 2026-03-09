@@ -5,6 +5,8 @@ __pycache__/
 data/raw/
 outputs/checkpoints/
 outputs/cache/
+outputs/nanochat_base/
+outputs/train_d12.log
 .env
 *.npz
 *.h5

@@ -77,3 +77,56 @@ results are in hand:
   no document-level signal.
 
 These are hard gates, not soft preferences. Do not preempt Phase 0.
+
+---
+
+## 2026-03-09 (training setup)
+
+### D6 — nanochat as git submodule at repo root
+
+**Decision:** `karpathy/nanochat` is added as a git submodule at `quelle/nanochat/`
+(repo root), not inside the experiment directory.
+
+**Rationale:** nanochat is a shared dependency across all VVVVVV phases and
+potentially future experiments. Placing it at the repo root avoids duplication
+and makes it available to the wiki and other tools.
+
+**Implication:** Run `git submodule update --init` after cloning. Pin the
+submodule to a specific commit before beginning Phase 1 to ensure reproducibility.
+
+---
+
+### D7 — Training data in outputs/nanochat_base/ (gitignored)
+
+**Decision:** `NANOCHAT_BASE_DIR` defaults to `experiments/VVVVVV/outputs/nanochat_base/`.
+All nanochat intermediates (parquet data shards, tokenizer, checkpoints) are stored
+there and gitignored.
+
+**Rationale:** Keeps experiment artifacts self-contained. Large files (parquet
+shards, model checkpoints) must not be committed. The default can be overridden
+via the `NANOCHAT_BASE_DIR` env var for shared compute setups where data lives
+on a separate disk.
+
+---
+
+### D8 — 30 ClimbMix shards for Phase 0 d12 baseline
+
+**Decision:** Default `N_SHARDS=30` in `setup.sh`.
+
+**Rationale:** nanochat docs say ~170 shards for GPT-2-level training (speedrun).
+d12 with 6000 steps × 524288 tokens/step ≈ 3.1B tokens; 30 shards should cover
+this with room to spare. If training data runs out before 6000 steps, increase
+`N_SHARDS` and re-run `setup.sh` (download is idempotent).
+
+---
+
+### D9 — run_phase0.py uses nanochat's checkpoint_manager.build_model()
+
+**Decision:** `run_phase0.py` loads checkpoints via `nanochat.checkpoint_manager.build_model()`
+rather than raw `torch.load()`.
+
+**Rationale:** nanochat does not save a single `ckpt["model"]`/`ckpt["config"]` dict.
+It saves `model_{step:06d}.pt` (flat state dict) and `meta_{step:06d}.json` (config)
+separately. `build_model()` handles both, applies key-name patching for old
+checkpoints, and returns an initialised eval-mode model. Using it directly avoids
+reimplementing fragile checkpoint-loading logic.

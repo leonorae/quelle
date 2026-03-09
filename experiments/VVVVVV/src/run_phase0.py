@@ -3,12 +3,25 @@ Phase 0 runner script — Multi-Timescale Value Embedding (VVVVVV)
 
 Usage
 -----
-    python run_phase0.py --checkpoint path/to/ckpt.pt --data_dir path/to/data
+Run from the repo root via the wrapper script:
 
-The nanochat package must be importable (add it to PYTHONPATH or run from a
-directory where nanochat/ is a sibling). Example:
+    bash experiments/VVVVVV/src/run_phase0.sh
 
-    PYTHONPATH=/path/to/nanochat python run_phase0.py --checkpoint ...
+Or manually (NANOCHAT_BASE_DIR and PYTHONPATH must be set):
+
+    export NANOCHAT_BASE_DIR=experiments/VVVVVV/outputs/nanochat_base
+    export PYTHONPATH=/path/to/quelle/nanochat:/path/to/quelle/experiments/VVVVVV/src
+    python experiments/VVVVVV/src/run_phase0.py \\
+        --checkpoint-dir $NANOCHAT_BASE_DIR/base_checkpoints/d12
+
+Checkpoint format
+-----------------
+nanochat saves checkpoints as:
+    <checkpoint-dir>/model_<step:06d>.pt   -- model state dict (flat)
+    <checkpoint-dir>/meta_<step:06d>.json  -- metadata including model_config
+
+This script uses nanochat.checkpoint_manager.build_model() which handles both.
+If --step is omitted, the latest available step is used.
 
 Outputs a JSON file to experiments/VVVVVV/outputs/phase0_results.json
 and prints a summary to stdout.
@@ -24,41 +37,55 @@ import torch
 
 def parse_args():
     p = argparse.ArgumentParser(description="Phase 0 diagnostics for VVVVVV")
-    p.add_argument("--checkpoint", required=True, help="Path to nanochat checkpoint (.pt)")
-    p.add_argument("--data_dir", required=True, help="Path to tokenised data directory")
+    p.add_argument(
+        "--checkpoint-dir", required=True,
+        help="Path to nanochat checkpoint directory (e.g. $NANOCHAT_BASE_DIR/base_checkpoints/d12)",
+    )
+    p.add_argument(
+        "--step", type=int, default=None,
+        help="Checkpoint step to load (default: latest)",
+    )
     p.add_argument("--device", default="cuda" if torch.cuda.is_available() else "cpu")
-    p.add_argument("--spike_batches", type=int, default=50)
-    p.add_argument("--bos_batches", type=int, default=20)
-    p.add_argument("--ablation_batches", type=int, default=None)
+    p.add_argument("--batch-size", type=int, default=4)
+    p.add_argument("--spike-batches", type=int, default=50)
+    p.add_argument("--bos-batches", type=int, default=20)
+    p.add_argument("--ablation-batches", type=int, default=None)
     p.add_argument("--output", default=str(
         Path(__file__).parent.parent / "outputs" / "phase0_results.json"
     ))
     return p.parse_args()
 
 
-def make_eval_fn(device, max_batches=100):
+def make_eval_fn(device, token_bytes, max_batches=100):
     """
     Returns an eval_fn compatible with eval_with_ve_ablated.
-    Computes mean cross-entropy loss and converts to bpb (bits per byte).
-    Assumes GPT-2 tokeniser (byte-pair; bpb ≈ loss / log(2)).
+    Computes bits-per-byte using nanochat's byte-weighted bpb formula.
+
+    token_bytes: 1-D tensor of shape (vocab_size,), bytes per token id
+                 (0 for special tokens that should not be counted).
     """
+    token_bytes = token_bytes.to(device)
+
     def eval_fn(model, dataloader, n_batches=None):
         model.eval()
-        total_loss = 0.0
-        total_tokens = 0
+        total_nats = 0.0
+        total_bytes = 0
         limit = n_batches if n_batches is not None else max_batches
         with torch.no_grad():
             for i, (x, y) in enumerate(dataloader):
                 if i >= limit:
                     break
                 x, y = x.to(device), y.to(device)
-                _, loss = model(x, y)
-                B, T = x.shape
-                total_loss += loss.item() * B * T
-                total_tokens += B * T
-        mean_loss = total_loss / total_tokens if total_tokens > 0 else float("nan")
-        bpb = mean_loss / math.log(2)
-        return bpb
+                loss2d = model(x, y, loss_reduction="none")  # (B, T)
+                loss2d = loss2d.view(-1)
+                y_flat = y.view(-1)
+                nb = token_bytes[y_flat]
+                total_nats += (loss2d * (nb > 0)).sum().item()
+                total_bytes += nb.sum().item()
+        if total_bytes == 0:
+            return float("nan")
+        return total_nats / (math.log(2) * total_bytes)
+
     return eval_fn
 
 
@@ -67,74 +94,41 @@ def main():
 
     # --- Import nanochat ---
     try:
-        from nanochat.gpt import GPT, GPTConfig, has_ve  # type: ignore[import]
-    except ImportError:
+        from nanochat.gpt import has_ve  # type: ignore[import]
+        from nanochat.checkpoint_manager import build_model, find_last_step  # type: ignore[import]
+        from nanochat.dataloader import tokenizing_distributed_data_loader_bos_bestfit  # type: ignore[import]
+        from nanochat.tokenizer import get_token_bytes  # type: ignore[import]
+    except ImportError as e:
         print(
-            "ERROR: Could not import nanochat. "
-            "Set PYTHONPATH to the nanochat repo root and retry.\n"
-            "  e.g.  PYTHONPATH=/path/to/nanochat python run_phase0.py ...",
+            f"ERROR: Could not import nanochat ({e}).\n"
+            "Use the run_phase0.sh wrapper, which sets PYTHONPATH automatically.",
             file=sys.stderr,
         )
         sys.exit(1)
 
     # --- Load model ---
-    print(f"Loading checkpoint: {args.checkpoint}")
-    ckpt = torch.load(args.checkpoint, map_location=args.device)
-    config = GPTConfig(**ckpt["config"])
-    model = GPT(config)
-    model.load_state_dict(ckpt["model"])
-    model.to(args.device)
-    model.eval()
-    print(f"Model loaded. n_layer={config.n_layer}, n_embd={config.n_embd}")
+    device = torch.device(args.device)
+    checkpoint_dir = args.checkpoint_dir
+    step = args.step if args.step is not None else find_last_step(checkpoint_dir)
+    print(f"Loading checkpoint: {checkpoint_dir}  step={step}")
+    model, tokenizer, meta = build_model(checkpoint_dir, step, device, phase="eval")
+    config = model.config
+    print(f"Model loaded. n_layer={config.n_layer}, n_embd={config.n_embd}, step={step}")
 
-    # --- Build dataloader ---
-    # nanochat uses a simple binary-memmapped DataLoader.
-    # Adjust the import path if nanochat's dataloader lives elsewhere.
-    try:
-        from nanochat.data import get_dataloader  # type: ignore[import]
-        val_loader = get_dataloader(
-            data_dir=args.data_dir,
-            split="val",
-            batch_size=ckpt.get("config", {}).get("batch_size", 4),
-            seq_len=config.block_size,
-        )
-    except ImportError:
-        # Fallback: minimal DataLoader using numpy memmap (common nanochat pattern)
-        import numpy as np
-
-        class _MinimalLoader:
-            def __init__(self, data_dir, seq_len, batch_size=4):
-                import os
-                val_bin = Path(data_dir) / "val.bin"
-                if not val_bin.exists():
-                    raise FileNotFoundError(f"val.bin not found at {val_bin}")
-                self.data = np.memmap(val_bin, dtype=np.uint16, mode="r")
-                self.seq_len = seq_len
-                self.batch_size = batch_size
-
-            def __iter__(self):
-                B, T = self.batch_size, self.seq_len
-                n = len(self.data)
-                pos = 0
-                while pos + B * T + 1 <= n:
-                    x = torch.tensor(
-                        self.data[pos: pos + B * T].reshape(B, T).astype("int64"),
-                        dtype=torch.long,
-                    )
-                    y = torch.tensor(
-                        self.data[pos + 1: pos + B * T + 1].reshape(B, T).astype("int64"),
-                        dtype=torch.long,
-                    )
-                    yield x, y
-                    pos += B * T
-
-        val_loader = _MinimalLoader(args.data_dir, config.block_size)
-        print("Warning: using minimal fallback DataLoader (nanochat.data not found).")
+    # --- Build validation dataloader ---
+    val_loader = tokenizing_distributed_data_loader_bos_bestfit(
+        tokenizer, B=args.batch_size, T=config.sequence_len, split="val",
+        device=args.device,
+    )
 
     # --- Run Phase 0 ---
-    from phase0_diagnostics import run_phase0
+    sys.path.insert(0, str(Path(__file__).parent))
+    from phase0_diagnostics import run_phase0  # type: ignore[import]
 
-    eval_fn = make_eval_fn(args.device)
+    token_bytes = get_token_bytes().to(device)
+    eval_fn = make_eval_fn(device, token_bytes)
+
+    Path(args.output).parent.mkdir(parents=True, exist_ok=True)
     results = run_phase0(
         model=model,
         dataloader=val_loader,
