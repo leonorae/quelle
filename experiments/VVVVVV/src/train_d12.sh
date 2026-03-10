@@ -40,6 +40,11 @@ cd "$NANOCHAT_DIR"
 # per step but actually runs.
 export TORCHDYNAMO_DISABLE=1
 
+# Reduce CUDA allocator fragmentation. The logits tensor [B, 2048, 32768] fp32
+# requires a large contiguous allocation; without expandable segments the
+# allocator holds reserved-but-unallocated fragmented blocks it cannot reuse.
+export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
+
 uv run python -m scripts.base_train \
     --depth=12 \
     --num-iterations="$N_ITERATIONS" \

@@ -144,6 +144,18 @@ results anyway (D5).
 
 ---
 
+### D12 — PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
+
+**Decision:** Export `PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True` in `train_d12.sh`.
+
+**Rationale:** After halving device batch size to 16 (D11), the logits tensor
+needs 4 GiB. The T4 had only 1.11 GiB free but 3.96 GiB reserved-but-unallocated
+in fragmented blocks the allocator couldn't combine into a contiguous region.
+`expandable_segments:True` lets the allocator grow segments non-contiguously,
+resolving the fragmentation. No functional change to training.
+
+---
+
 ### D11 — device-batch-size 16 for T4
 
 **Decision:** `train_d12.sh` passes `--device-batch-size=16`.
