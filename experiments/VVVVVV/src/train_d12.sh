@@ -35,6 +35,11 @@ echo ""
 
 cd "$NANOCHAT_DIR"
 
+# Disable torch.compile: hangs indefinitely on Tesla T4 during triton kernel
+# compilation (no progress after 50+ minutes). Eager mode is slightly slower
+# per step but actually runs.
+export TORCHDYNAMO_DISABLE=1
+
 uv run python -m scripts.base_train \
     --depth=12 \
     --num-iterations="$N_ITERATIONS" \
@@ -45,6 +50,7 @@ uv run python -m scripts.base_train \
     --sample-every=-1 \
     --run=dummy \
     --model-tag=d12 \
+    --window-pattern=L \
     2>&1 | tee -a "$LOG_FILE"
 
 echo ""
