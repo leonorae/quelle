@@ -1,166 +1,147 @@
-# CLAUDE.md — Quelle Repository Guide
+# CLAUDE.md — Quelle
 
-This file is the primary reference for all agents (and humans) working in this
-monorepo. Read it before creating files, directories, or committing changes.
-
----
-
-## Repository Purpose
-
-**Quelle** is a shared monorepo for frontier research. Multiple agents and
-humans collaborate here over time. The two core concerns are kept strictly
-separate:
-
-| Concern | Location | What belongs here |
-|---|---|---|
-| **Experiments** | `experiments/` | Runnable code, configs, results, per-experiment notes |
-| **Knowledge** | `wiki/` | Concepts, findings, glossary, agent notes, cross-experiment synthesis |
-
-Never mix the two. If you are writing code that runs, it goes in `experiments/`.
-If you are writing down what you learned, it goes in `wiki/`.
+Primary reference for all agents and humans. Read before creating files or committing.
 
 ---
 
-## Research Philosophy Primer
-TODO: write this section.
-for now, Claude agents should consult my user data for context on my methodology and philosophy when faced with making directorial decisions. If strictly implementing a defined specification, this is less important, particularly if you need your whole context for the task. However, I welcome questioning and re-steering at any time. I do not have metrics or quotas to meet, I do not have a need to appear directed or justify failures, I seek only truth.
+## What this repo is
 
-## Directory Layout
+Frontier research monorepo. Truth-seeking; no metrics, quotas, or need to appear
+directed. Failures and pivots are data. Question assumptions and steer at any time.
+
+Three strictly separate concerns:
+
+| Location | Contains |
+|---|---|
+| `experiments/` | Runnable code, configs, outputs, per-experiment notes |
+| `wiki/` | Knowledge: concepts, findings, cross-experiment synthesis, agent notes |
+| `tools/` | Shared utilities with demonstrated reuse across ≥2 experiments |
+
+**Never mix these.** If it runs, it belongs in `experiments/` or `tools/`. If it explains,
+it belongs in `wiki/`.
+
+---
+
+## Directory layout
 
 ```
 quelle/
-├── CLAUDE.md                        ← you are here
-├── STATUS.md                        ← current briefing card (read this first)
-├── README.md                        ← human-facing project overview / current spec
+├── CLAUDE.md
+├── STATUS.md                 ← current briefing (read this on session start)
+├── README.md
+├── nanochat/                 ← git submodule (karpathy/nanochat)
 │
-├── experiments/                     ← one subdirectory per experiment
-│   └── <slug>/
-│       ├── README.md                ← what this experiment tests, status
-│       ├── RESULTS.md               ← findings after the run (fill in post-hoc)
-│       ├── DECISIONS.md             ← implementation decisions for this experiment
-│       ├── src/                     ← source code
-│       ├── configs/                 ← hyperparameters, environment specs
-│       ├── data/                    ← generated or downloaded data (gitignore large files)
-│       ├── outputs/                 ← checkpoints, logs, plots (gitignore large files)
-│       └── notebooks/               ← exploratory notebooks (optional)
+├── experiments/<slug>/
+│   ├── README.md             ← hypothesis, status, owner, dependencies
+│   ├── RESULTS.md            ← post-run findings
+│   ├── DECISIONS.md          ← implementation decisions for this experiment
+│   ├── src/
+│   ├── configs/
+│   ├── data/                 ← gitignore large files
+│   ├── outputs/              ← gitignore large files
+│   └── notebooks/
 │
-└── wiki/                            ← living knowledge base
-    ├── README.md                    ← wiki index / table of contents
-    ├── library/                     ← papers, documents, philosophical grounding, inspiration
-    ├── concepts/                    ← theory, background, shared definitions
-    ├── findings/                    ← cross-experiment synthesis and key results
-    ├── agents/                      ← per-agent working notes and handoffs
-    │   └── archive/                 ← old session logs (rotated out)
-    └── humans/                      ← human-authored notes, decisions, roadmap
+├── tools/
+│   ├── training/             ← compute deployment (Colab, etc.), experiment-agnostic
+│   └── analysis/             ← shared probe/viz utilities, organised by probe target
+│       ├── residual/
+│       ├── attention/
+│       └── ...
+│
+└── wiki/
+    ├── README.md             ← index
+    ├── library/              ← papers, references, philosophical grounding
+    ├── concepts/             ← theory, shared definitions
+    ├── findings/             ← cross-experiment synthesis
+    ├── agents/               ← per-agent working notes and handoffs
+    │   └── archive/
+    └── humans/               ← human-authored notes, decisions, roadmap
 ```
 
 ---
 
-## Experiment Naming
+## Antidirectives
 
-Slugs must be lowercase, hyphen-separated, descriptive:
+Things agents must **not** do without explicit instruction:
+
+- **Do not move code to `tools/`** until it is needed by ≥2 separate experiments.
+  Keep it in `experiments/<slug>/src/` until then.
+- **Do not preempt phase-gated decisions.** If a DECISIONS.md entry says "implement
+  only if X", do not implement it speculatively. Wait for the gate condition.
+- **Do not create sibling experiments for hyperparameter variants.** Variants live
+  inside the same experiment directory as separate configs or result subdirectories.
+- **Do not commit large binary files** (models, datasets, checkpoints). Gitignore
+  them and document where they are stored.
+- **Do not generalise prematurely.** Three similar lines of code across one experiment
+  is not sufficient reason to abstract. Wait for genuine cross-experiment reuse.
+
+---
+
+## Experiments
+
+Slug format: `lowercase-hyphen-separated-descriptive`
+
+On starting: create the directory skeleton and fill in `README.md` (hypothesis,
+status, owner, dependencies) before writing any code. Commit the skeleton.
+
+Log all non-obvious implementation choices in `DECISIONS.md`.
+Repo-level decisions go in `wiki/humans/decisions.md`.
+
+---
+
+## Tools
+
+`tools/training/` — compute deployment utilities. Cross-experiment by design from
+the start; create entries here when building deployment infrastructure.
+
+`tools/analysis/` — shared probe and visualisation utilities. Subdirectories
+organised by what they examine (residual stream, attention, gates, …).
+**Do not add here until a utility is needed by a second experiment.**
+Until then, keep analysis code in `experiments/<slug>/src/`.
+
+---
+
+## Commit format
 
 ```
-experiments/variable-bitrate-reasoning/
-experiments/manifold-capability-probing/
-experiments/gumbel-compression-ablation/
+<type>(<scope>): <short description>
 ```
+Types: `feat` `fix` `data` `results` `docs` `refactor` `chore`
+Scope: experiment slug, `wiki`, `tools`, or `repo`
 
-Use a new directory for each distinct experiment. Variants (different seeds,
-hyperparameters) live under the same experiment directory as separate config
-files or result subdirectories, not as sibling experiments.
-
----
-
-## Starting a New Experiment
-
-1. Create `experiments/<slug>/` with the structure above.
-2. Fill in `experiments/<slug>/README.md` immediately (even if partial). Include:
-   - **Hypothesis** — what you are testing
-   - **Status** — `planning | running | complete | abandoned`
-   - **Owner** — agent ID or human handle
-   - **Depends on** — other experiments or wiki concepts this builds on
-3. Commit the skeleton before writing any code.
-4. Log implementation decisions in `experiments/<slug>/DECISIONS.md`
-   (repo-level decisions go in `wiki/humans/decisions.md`).
+Keep experiment changes and wiki updates in separate commits.
 
 ---
 
-## Committing
+## Agent session protocol
 
-- Commit message format: `<type>(<scope>): <short description>`
-  - Types: `feat`, `fix`, `data`, `results`, `docs`, `refactor`, `chore`
-  - Scope: experiment slug or `wiki` or `repo`
-  - Example: `feat(variable-bitrate-reasoning): add compression head`
-- Keep experiments and wiki updates in separate commits where practical.
-- Never commit large binary files (models, datasets). Use `.gitignore` inside
-  the experiment directory and document where artifacts are stored.
+**Start:** Read `STATUS.md`. Check `experiments/<slug>/README.md` for the active
+experiment. Consult `wiki/` only if you need deeper background.
 
----
+**End:** Update experiment `README.md` status. Update `STATUS.md` if anything
+changed. Write non-obvious findings to `wiki/findings/`. Append a short entry to
+`wiki/agents/<your-id>.md` (rotate to archive when file exceeds ~80 lines). Commit.
 
-## Agent Protocols
-
-### Starting a session
-- Read this file (`CLAUDE.md`).
-- Read `STATUS.md` for current briefing (replaces traversing the full wiki).
-- Check the relevant `experiments/<slug>/README.md` for status.
-- Consult `wiki/README.md` or `wiki/concepts/` only when you need deeper
-  background — they are references, not required startup reading.
-
-### Ending a session
-- Update `experiments/<slug>/README.md` with current status.
-- Update `STATUS.md` with any changed experiment status or new open questions.
-- Write any non-obvious findings to `wiki/findings/`.
-- Append a session entry to `wiki/agents/<your-id>.md`. Keep to a short
-  summary; when the agent file exceeds ~80 lines, move old sessions to
-  `wiki/agents/archive/<your-id>-YYYY-MM.md` and replace them with a
-  cumulative summary paragraph at the top.
-- Commit all changes before ending.
-
-### Asking for help
-- Leave a clearly marked `<!-- QUESTION: ... -->` comment in the relevant file,
-  or open a section in `wiki/agents/<your-id>.md` headed `## Open Questions`.
+**Questions:** `<!-- QUESTION: ... -->` in the relevant file, or `## Open Questions`
+in `wiki/agents/<your-id>.md`.
 
 ---
 
-## What Goes in `wiki/` vs. Code Comments
+## wiki/ vs code comments
 
-| Use `wiki/` for | Use code comments for |
+| wiki/ | code comments |
 |---|---|
 | Conceptual explanations | Why a specific line works the way it does |
 | Cross-experiment patterns | Inline TODOs |
 | Design decisions and rationale | Type/arg documentation |
-| Reading lists, external references | Implementation notes specific to one function |
+| Reading lists, references | Implementation notes for one function |
 
 ---
 
-## Gitignore Defaults
+## Dashboard (planned)
 
-Each experiment directory should contain its own `.gitignore` covering at
-minimum:
+Will read YAML frontmatter from `experiments/*/README.md` and `wiki/findings/*.md`.
+Keep those frontmatter blocks intact and parseable.
 
-```
-__pycache__/
-*.pyc
-*.pth
-*.ckpt
-data/raw/
-outputs/checkpoints/
-outputs/cache/
-.env
-```
-
----
-
-## Dashboard (future)
-
-A dashboard aggregating experiment status and wiki activity is planned. When
-it arrives, it will read structured frontmatter from `experiments/*/README.md`
-and `wiki/findings/*.md`. Please keep the YAML frontmatter block at the top
-of those files as shown in the templates below so the dashboard can parse
-them without changes.
-
-wishlist:
-- StumpWM/emacs env integration, chat logging, PDF annotating/tagging, (Agentic research OS)
-- fast way for me to associate open questions with research, detection of a question being answered (or relevant findings)
-- context-aware agentic management of these
+Wishlist: StumpWM/Emacs integration, chat logging, PDF annotation, question↔finding
+linkage, context-aware agentic experiment management.

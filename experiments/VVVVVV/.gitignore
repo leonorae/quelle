@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+*.pth
+*.ckpt
+data/raw/
+outputs/checkpoints/
+outputs/cache/
+outputs/nanochat_base/
+outputs/train_d12.log
+.env
+*.npz
+*.h5
+wandb/
