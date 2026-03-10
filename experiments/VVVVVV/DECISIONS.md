@@ -120,6 +120,30 @@ this with room to spare. If training data runs out before 6000 steps, increase
 
 ---
 
+### D10 — T4 training workarounds: window-pattern L and no torch.compile
+
+**Decision:** `train_d12.sh` passes `--window-pattern L` and sets
+`TORCHDYNAMO_DISABLE=1`.
+
+**Rationale:**
+- Tesla T4 (SM 75, pre-Ampere) cannot run Flash Attention 3. nanochat falls back
+  to PyTorch SDPA.
+- SDPA cannot implement sliding window attention, so the default `SSSL` pattern
+  causes it to materialise full 2048×2048 attention matrices for every layer.
+  At batch=32 this is ~3 GB per layer, causing OOM during the forward pass.
+- With `--window-pattern L` all layers use full causal attention, which SDPA
+  handles via its flash-attention-like fused kernel without materialising the
+  full matrix.
+- `torch.compile` hangs for 50+ minutes on T4 during triton kernel compilation
+  without producing a single training step. `TORCHDYNAMO_DISABLE=1` runs in
+  eager mode, which is slightly slower per step but actually runs.
+
+**Implication:** Trained model uses full causal attention (no sliding window).
+This is fine for Phase 0 diagnostics; architectural variants are gated on Phase 0
+results anyway (D5).
+
+---
+
 ### D9 — run_phase0.py uses nanochat's checkpoint_manager.build_model()
 
 **Decision:** `run_phase0.py` loads checkpoints via `nanochat.checkpoint_manager.build_model()`
