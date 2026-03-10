@@ -144,6 +144,18 @@ results anyway (D5).
 
 ---
 
+### D11 — device-batch-size 16 for T4
+
+**Decision:** `train_d12.sh` passes `--device-batch-size=16`.
+
+**Rationale:** The logits tensor shape is [batch, seq, vocab] = [B, 2048, 32768].
+At the default `--device-batch-size=32` this is 32×2048×32768×4 bytes = 8 GiB,
+which exceeds the T4's ~4.7 GiB of free VRAM after model and optimizer states
+are loaded. Halving to 16 reduces logits to 4 GiB. Gradient accumulation steps
+automatically double (8→16) so total batch size (524,288 tokens) is preserved.
+
+---
+
 ### D9 — run_phase0.py uses nanochat's checkpoint_manager.build_model()
 
 **Decision:** `run_phase0.py` loads checkpoints via `nanochat.checkpoint_manager.build_model()`
