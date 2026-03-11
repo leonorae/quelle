@@ -50,6 +50,14 @@ def parse_args():
     p.add_argument("--spike-batches", type=int, default=50)
     p.add_argument("--bos-batches", type=int, default=20)
     p.add_argument("--ablation-batches", type=int, default=None)
+    p.add_argument(
+        "--gate-window", type=int, default=12,
+        help=(
+            "Width of the ve gate's fixed read window. "
+            "Empirically reduced from 32 to 12 (autoresearch #43). "
+            "Auto-detected from model.config.ve_gate_channels if present."
+        ),
+    )
     p.add_argument("--output", default=str(
         Path(__file__).parent.parent / "outputs" / "phase0_results.json"
     ))
@@ -115,6 +123,14 @@ def main():
     config = model.config
     print(f"Model loaded. n_layer={config.n_layer}, n_embd={config.n_embd}, step={step}")
 
+    # Auto-detect gate window from model config if available; fall back to CLI arg.
+    # The nanochat GPTConfig field is ve_gate_channels (set when ve is enabled).
+    gate_window = getattr(config, "ve_gate_channels", args.gate_window)
+    if gate_window != args.gate_window:
+        print(f"gate_window: {gate_window} (from model config — overrides CLI default {args.gate_window})")
+    else:
+        print(f"gate_window: {gate_window} (CLI arg — model config has no ve_gate_channels)")
+
     # --- Build validation dataloader ---
     val_loader = tokenizing_distributed_data_loader_bos_bestfit(
         tokenizer, B=args.batch_size, T=config.sequence_len, split="val",
@@ -138,6 +154,7 @@ def main():
         spike_batches=args.spike_batches,
         bos_batches=args.bos_batches,
         ablation_batches=args.ablation_batches,
+        gate_window=gate_window,
     )
 
     print("\n=== Summary ===")
@@ -145,7 +162,7 @@ def main():
     q02 = results["Q0.2_bos_stability"]
     q03 = results["Q0.3_ve_ablation"]
 
-    print("\nQ0.1 — Spike channel overlap:")
+    print(f"\nQ0.1 — Spike channel overlap (gate_window={q01['gate_window']}):")
     for layer, overlap in q01["overlap_fraction"].items():
         interp = q01["interpretation"][layer]
         print(f"  layer {layer}: {overlap:.1%} overlap → {interp}")
