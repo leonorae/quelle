@@ -133,11 +133,47 @@ d12 or d16 scale to run `python src/run_phase0.py --checkpoint ... --data_dir ..
 **Status at end of session**: No code changes. Awaiting d12 training run for
 Phase 0 diagnostics.
 
+## Session 2026-03-11 (continued)
+
+**Branch**: `claude/fix-nanochat-training-error-d3nlZ`
+
+**Work done**:
+- Fixed gate_window 32→12 throughout: `run_phase0.py` (default + auto-detect
+  from model config), `colab_train.ipynb` (GATE_WINDOW config + pass-through),
+  `README.md` hypothesis / Q0.1 / dependencies, `DECISIONS.md` D5 cross-ref.
+- Added DECISIONS.md D13: gate_window empirical origin, gradient pressure
+  dynamics, arbitrary-first-indices problem, domain specificity, learned
+  projection as cheap fix.
+- Added DECISIONS.md D14: Q0.3 metric validity caveat — bpb delta may be small
+  or negative due to sequence length, distribution fit, or ablation routing;
+  treat as directional evidence only.
+- Extended README Open Questions: full write-up of Q0.3 metric validity concern
+  and gate channel placement / double-duty / ideal channel analysis.
+
+**Key discussion**:
+- Spike channel inside gate window = double duty (residual content + gate signal)
+  = possible wasted capacity. "Informative" overlap ≠ efficient gate.
+- Ideal gate channels: low-magnitude for main pathway, high-variance for gating.
+  Q0.1's overlap metric can't distinguish this from busy shared channels.
+- Fixed `[:12]` slice is arbitrary (karpathy nanochat discussion, ref needed).
+  Learned projection (3,072 params at d12) removes the problem cleanly.
+- Q0.3 metric risk: ClimbMix bpb on 2048-token sequences may not be sensitive to
+  multi-timescale ve contribution; delta could be near-zero or negative without
+  ve being unimportant.
+- Broader concern: autoresearch tuned gate_window=12 on ClimbMix metrics — the
+  gate and its read channels are shaped by that distribution. Results may not
+  transfer to other corpora without re-tuning.
+
 ## Open Questions
 
-- Q0.1: Do spike channels (relu²) fall in [:12] (updated from :32)? → gate
-  mechanism characterisation.
+- Q0.1: Do spike channels (relu²) fall in [:12]? And if so, are those channels
+  doing double duty (residual + gate) vs dedicated gate-signaling lanes? The
+  overlap fraction alone doesn't distinguish.
 - Q0.2: Is BOS residual document-varying or near-constant? → BOS conditioning
   viability.
+- Q0.3: Is val_bpb on ClimbMix the right metric, or do we need longer-document
+  or domain-shifted eval to see ve's actual functional load?
 - Scale dependence: does ve benefit decay with model size? (not addressed in
   current phases — carry as interpretive caveat on Phase 0 results)
+- gate_window domain specificity: is 12 right for ClimbMix only, and what would
+  a learned projection gate reveal about the actual optimal subspace?

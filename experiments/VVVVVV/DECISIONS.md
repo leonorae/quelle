@@ -70,8 +70,9 @@ The following architectural decisions are explicitly deferred until Phase 0
 results are in hand:
 
 - **Learned projection gate (§6.1):** Implement only if Phase 0 Q0.1 shows
-  <20% spike-channel overlap with [:32]. If overlap is high, current gate
-  may already be reading informative channels.
+  <20% spike-channel overlap with [:12]. If overlap is high, current gate
+  may already be reading informative channels. See D13 for why the overlap
+  criterion alone may be insufficient even in the high-overlap case.
 - **BOS-conditioned table (§6.2):** Implement only if Phase 0 Q0.2 shows
   BOS varies across documents. If BOS is a pure sink, this conditioning adds
   no document-level signal.
@@ -178,3 +179,84 @@ It saves `model_{step:06d}.pt` (flat state dict) and `meta_{step:06d}.json` (con
 separately. `build_model()` handles both, applies key-name patching for old
 checkpoints, and returns an initialised eval-mode model. Using it directly avoids
 reimplementing fragile checkpoint-loading logic.
+
+---
+
+## 2026-03-11
+
+### D13 — gate_window=12: empirical origin, gradient dynamics, and open limitations
+
+**Decision recorded:** gate_window updated from 32 to 12 throughout experiment
+scripts and probes. Codified as the default in `run_phase0.py` with auto-detection
+from `model.config.ve_gate_channels`.
+
+**Origin:** autoresearch #43 reduced the gate's fixed read window from 32 to 12
+empirically during post-training hyperparameter search. This reduction improved
+val metrics on ClimbMix. It was not derived from a principled analysis of which
+channels carry gate-useful information.
+
+**Gradient dynamics of the fixed slice:**
+The gate reads `x[:, :, :gate_window]` — a fixed prefix of the residual stream.
+Channels 0–11 receive gradient from both the standard next-token prediction path
+and the ve gate path. Channels 12+ receive no gradient from the gate. This creates
+differential pressure: the model learns to route gate-useful information into
+channels 0–11, competing with whatever those channels already carry.
+
+Implications:
+- If spike channels (high mean |activation|) land inside the gate window, they
+  are doing double duty: carrying residual content *and* carrying gate signal.
+  This may represent wasted capacity — bandwidth split between two objectives.
+- Conversely, if gate channels are low-magnitude for the main pathway but
+  high-variance for gating, the fixed slice has spontaneously created dedicated
+  gate-signaling lanes. Q0.1's overlap metric cannot distinguish these two cases.
+- The optimal gate input is channels that are maximally discriminative for gating
+  with minimal interference to the residual prediction path — not necessarily the
+  highest-magnitude channels.
+
+**Arbitrary first-indices problem:**
+The `[:12]` slice is arbitrary. The original decision to use the first k channels
+rather than a learned projection was a simplification (noted in karpathy's nanochat
+discussion; exact reference needed). Whether channels 0–11 happen to be good gate
+inputs is an empirical question, not a design guarantee.
+
+**Domain specificity:**
+gate_window=12 was tuned on ClimbMix (webtext-like). The optimal window may differ
+for other distributions — corpora with more structural heterogeneity (code, math,
+multilingual) may require more dimensions to distinguish gating contexts where the
+same token has qualitatively different roles.
+
+**Cheap fix if Q0.1 is inconclusive or unsatisfactory:**
+A learned linear projection W_gate ∈ ℝ^(12×d_model) replaces the fixed slice.
+At d12 (d_model=256): 3,072 extra parameters — negligible. Removes the
+arbitrary-index problem and allows gradient to select the optimal gate subspace
+rather than defaulting to the first 12 residual coordinates. Gated on Phase 0
+Q0.1 results per D5, but worth considering even in the "informative" case.
+
+---
+
+### D14 — Q0.3 metric validity caveat: ClimbMix bpb may not capture ve's contribution
+
+**Decision recorded:** Q0.3 results must be interpreted with explicit awareness
+that the metric may be insensitive to ve's actual functional role.
+
+**Concern:** val_bpb on ClimbMix val sequences is a proxy for ve's contribution.
+It may be near-zero, small, or even slightly negative without this meaning ve is
+unimportant. Specific failure modes:
+
+1. **Sequence length / context window:** If ve's benefit is primarily multi-timescale
+   coherence over long documents, the ~2048-token eval window may not expose it.
+   The ablation cost would appear small.
+2. **Distribution fit:** The gate and ve table were trained on ClimbMix. val_bpb
+   on ClimbMix val is the metric the network was directly optimised for. This
+   could overstate ve's contribution (metric the network was optimised on) or
+   understate it (if ve's benefit is orthogonal to next-token prediction on
+   short webtext sequences).
+3. **Negative delta is possible:** zeroing ve may cause the model to route around
+   it for some predictions, producing a near-zero or slightly negative measured
+   delta. This would not mean ve is harmful — it would mean the ablation is
+   incomplete (other parameters partially compensate within the eval).
+
+**Interpretation rule:** Q0.3 delta is directional evidence. Small or near-zero
+does not close the question. If delta is small, consider whether a targeted eval
+on longer documents or documents with explicit long-range structure would be more
+sensitive before drawing conclusions about ve's functional load.
