@@ -1,0 +1,57 @@
+# VVVVVV Phase 0 — d12 baseline configuration
+#
+# This file documents the full effective configuration for the Phase 0
+# training run. It is a human record, not a loader — nanochat's CLI is
+# invoked directly from train_d12.sh with the explicit args listed below.
+#
+# Fields marked [nanochat default] are not passed explicitly; they reflect
+# nanochat's current defaults and should be verified if the submodule is
+# updated. Fields marked [explicit] are passed as CLI args in train_d12.sh.
+#
+# See DECISIONS.md for rationale on each decision.
+
+# --- Model architecture ---
+depth: 12                     # [explicit] n_layer=12 (d12 config)
+# n_embd, n_head, n_kv_head, ffn_dim: nanochat d12 defaults
+#   n_embd=256, n_head=8, n_kv_head=4, ffn_dim=1024 (approximate; verify)
+window_pattern: L             # [explicit] all-layers full causal attention (D10: T4 workaround)
+sequence_len: 2048            # [nanochat default]
+
+# --- Value embeddings ---
+# ve placement: alternating layers, has_ve() pattern  [nanochat default]
+# ve table size: vocab_size × n_embd                  [nanochat default]
+ve_weight_decay: 0.001        # [explicit] lower bound of known-good range 0.001–0.003 (autoresearch #43)
+                              # 0.005 regresses; 0.001 is the conservative end, minimal regularization
+                              # that is known to improve. No finer data available within the range.
+ve_gate_channels: 12          # [nanochat default as of autoresearch #43] fixed [:12] residual slice
+                              # Note: run_phase0.py auto-detects this from model.config.ve_gate_channels
+
+# --- Training ---
+num_iterations: 6000          # [explicit] ~3.1B tokens at 524,288 tokens/step
+total_batch_tokens: 524288    # [nanochat default] B × T × grad_accum
+device_batch_size: 16         # [explicit] D11: T4 VRAM constraint; grad_accum doubles to 32
+# lr, warmup, lr_schedule: nanochat defaults (not pinned — record actual values from first run log)
+
+# --- Checkpointing / logging ---
+save_every: 1000              # [explicit]
+eval_every: 250               # [explicit]
+core_metric_every: -1         # [explicit] disabled
+sample_every: -1              # [explicit] disabled
+model_tag: d12                # [explicit]
+
+# --- Data ---
+dataset: climbmix             # [nanochat default]
+n_shards: 30                  # [explicit in setup.sh] sufficient for 6000 steps (D8)
+tokenizer: climbmix_bpe       # [nanochat default, trained by setup.sh]
+
+# --- Compute / environment ---
+# Hardware target: Tesla T4 (15 GB VRAM, SM 75, pre-Ampere)
+# TORCHDYNAMO_DISABLE=1                       [explicit env] D10: triton hang on T4
+# PYTORCH_CUDA_ALLOC_CONF=expandable_segments  [explicit env] D12: allocator fragmentation
+
+# --- Phase 0 probe config (run_phase0.py) ---
+gate_window: 12               # passed as --gate-window; auto-detected from model config if available
+spike_batches: 50             # Q0.1 accumulation batches (D3)
+bos_batches: 20               # Q0.2 accumulation batches (D3)
+ablation_batches: null        # Q0.3: use eval_fn default (100 batches)
+probe_batch_size: 4           # run_phase0.py --batch-size default

@@ -182,6 +182,42 @@ reimplementing fragile checkpoint-loading logic.
 
 ---
 
+## 2026-03-11 (config)
+
+### D15 — ve_weight_decay=0.001 for Phase 0 baseline
+
+**Decision:** Pass `--ve-weight-decay=0.001` explicitly in `train_d12.sh`.
+
+**Rationale:** autoresearch #43 established that ve weight decay 0.001–0.003
+improves over the default; 0.005 regresses. No finer data exists within the
+range. 0.001 is chosen as the conservative lower bound: it is the minimum
+regularization known to improve, minimising risk of over-regularizing the small
+ve table. The midpoint (0.002) would be equally arbitrary. The upper end (0.003)
+risks unnecessary shrinkage of the table for a diagnostic baseline.
+
+If ve_weight_decay turns out to be a meaningful variable for Phase 1, sweep it
+then. For Phase 0, pinning to 0.001 makes the baseline reproducible and avoids
+an unrecorded nanochat default.
+
+---
+
+### D16 — configs/d12_baseline.yaml as documentation, no config loader
+
+**Decision:** Create `configs/d12_baseline.yaml` documenting the full effective
+configuration. No config loader.
+
+**Rationale:** A config loader would require either wrapping nanochat's CLI
+(fragile — nanochat is a submodule with its own arg surface) or reimplementing
+nanochat's argument parsing. For a single Phase 0 training run, this adds
+complexity with no benefit. The YAML file serves as a human record of what the
+effective config is, including nanochat defaults we're implicitly relying on.
+
+A loader becomes worth building in Phase 1 if we run sweeps (k variants,
+gate_window variants, etc.) that require programmatic configuration. Revisit
+then.
+
+---
+
 ## 2026-03-11
 
 ### D13 — gate_window=12: empirical origin, gradient dynamics, and open limitations
