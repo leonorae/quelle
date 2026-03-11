@@ -93,9 +93,51 @@ Ready to run full training (`python3.11 -m src.train --config configs/default.ya
 unchanged (nanochat/gpt.py not modified). Awaiting: nanochat checkpoint at
 d12 or d16 scale to run `python src/run_phase0.py --checkpoint ... --data_dir ...`.
 
+## Session 2026-03-11
+
+**Branch**: `claude/fix-nanochat-training-error-d3nlZ`
+
+**Work done**: Conceptual discussion, no code changes.
+- Updated `experiments/VVVVVV/README.md` — expanded Open Questions with:
+  scale-dependence of ve benefit (capacity-hack vs. interference-reduction),
+  relu² specificity and SwiGLU non-transferability, Phase 0 as mechanism
+  characterisation independent of VVVVVV hypotheses.
+- Created `wiki/concepts/constraint-forcing-function.md` — research methodology
+  page documenting the pattern: constrained architecture → forced discovery →
+  hack characterisation → generalisation or architectural motivation. Includes
+  historical examples (induction heads, attention sinks → registers, GQA) and
+  application to VVVVVV. Includes soft-register-for-inference-context as a
+  future direction stub.
+- Updated `wiki/README.md` index.
+
+**Key discussion points**:
+- ve gate reduced 32→12 channels empirically and improved; this suggests either
+  gate reads a few spike channels (small minority) or gate is doing something
+  very low-dimensional (near magnitude threshold).
+- If BOS is a pure sink, register tokens (Darcet et al.) are the minimal
+  architectural fix — free BOS from sink pressure, let gradient flow to ve gate
+  create pressure for BOS to encode document structure.
+- MoE analogy: VVVVVV wants document-conditional routing (coarser than token);
+  standard MoE does per-token routing. The gap is exactly the BOS sink problem.
+- nanochat constraints are valued as forcing functions, not goals. The research
+  interest is in what hacks the constrained network discovers, not in nanochat
+  results per se.
+- Scale dependence is the critical unknown: "ve is load-bearing" is established
+  only at nanochat scales. Capacity-hack hypothesis predicts decay with scale;
+  interference-reduction hypothesis predicts stable or increasing benefit.
+- relu² spike channels may not generalise to SwiGLU — a hard limit on
+  transferability of any gate mechanism that relies on spike structure.
+
+**Experiments touched**: `VVVVVV` (README updated), wiki (new concept page)
+
+**Status at end of session**: No code changes. Awaiting d12 training run for
+Phase 0 diagnostics.
+
 ## Open Questions
 
-- Q0.1: Do spike channels (relu²) fall in [:32]? → determines whether learned
-  projection gate (§6.1) is needed.
-- Q0.2: Is BOS residual document-varying or near-constant? → determines whether
-  BOS-conditioned table (§6.2) is viable.
+- Q0.1: Do spike channels (relu²) fall in [:12] (updated from :32)? → gate
+  mechanism characterisation.
+- Q0.2: Is BOS residual document-varying or near-constant? → BOS conditioning
+  viability.
+- Scale dependence: does ve benefit decay with model size? (not addressed in
+  current phases — carry as interpretive caveat on Phase 0 results)

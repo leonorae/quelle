@@ -75,3 +75,45 @@ Three concrete diagnostics before touching k:
 ## Open Questions
 
 See `ve_implementation_plan.md` §10 and `DECISIONS.md`.
+
+### Scale dependence
+
+All "ve is load-bearing" evidence (nanochat discussion #481, autoresearch #43)
+is at nanochat's speedrun scales (d12–d26). Two competing hypotheses for *why*
+ve helps:
+
+- **Capacity-hack hypothesis**: ve is a cheap token-type-specific prior on
+  value projections that a small attention mechanism doesn't have capacity to
+  learn from context. Benefit decays with scale as weight matrices have room
+  to encode the same patterns directly. If true, ve is a small-model artifact
+  with limited generalization interest.
+
+- **Interference-reduction hypothesis**: ve offloads stable token-type patterns
+  from the residual stream into a dedicated table, reducing superposition
+  interference. If true, benefit should be scale-stable or increasing, because
+  a wider residual stream carrying more competing signals has more to gain from
+  factoring out static components.
+
+Phase 0 Q0.3 (ablation delta) establishes functional load at d12, but cannot
+distinguish these hypotheses. Distinguishing them requires replicating Q0.3
+at multiple scales. This is not planned for current phases but should inform
+how strongly to generalize Phase 0 results.
+
+### relu² specificity
+
+nanochat uses relu² (squared ReLU). This produces genuinely sparse,
+high-magnitude spike channels. SwiGLU (standard in Llama/Mistral-class
+production models) is smooth and bounded — its channel magnitude profile is
+qualitatively different. If the gate mechanism depends on spike channel
+structure (Q0.1 hypothesis), results may not transfer to SwiGLU architectures.
+This is a hard limit on generalizability that Phase 0 cannot address — it is a
+known prior to carry into interpretation.
+
+### Phase 0 as mechanism characterisation, not just hypothesis gating
+
+The Phase 0 questions are written as gates for VVVVVV Phase 1+. They are also
+the first mechanistic characterisation of why ve helps at all — a question that
+is separately valuable regardless of whether VVVVVV proceeds. Whatever the gate
+is reading (Q0.1), and whatever functional load ve carries (Q0.3), is new
+information about a result that has been empirically established but not
+explained.

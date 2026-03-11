@@ -31,6 +31,7 @@ wiki/
 | [gumbel-softmax.md](concepts/gumbel-softmax.md) | Differentiable discrete sampling — how and why |
 | [dsd-future-prediction.md](concepts/dsd-future-prediction.md) | Dead-Stop-Detach (stop-gradient) future state prediction objective |
 | [related-work.md](concepts/related-work.md) | Summaries of six papers directly informing `variable-bitrate-reasoning` |
+| [constraint-forcing-function.md](concepts/constraint-forcing-function.md) | Using architectural constraints deliberately to force discovery of network hacks; generalising those hacks |
 
 ## Findings
 
