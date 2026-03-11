@@ -184,31 +184,25 @@ reimplementing fragile checkpoint-loading logic.
 
 ## 2026-03-11 (config)
 
-### D15 — ve_weight_decay: OPEN, not yet pinned
+### D15 — ve_weight_decay: OPEN, needs nanochat patch
 
-**Status:** Blocked. `--ve-weight-decay` is not a recognised CLI arg in
-`nanochat/scripts/base_train.py` (`unrecognized arguments` error at runtime).
-The flag has been removed from `train_d12.sh` pending resolution.
+**Status:** Blocked pending nanochat submodule init + patch.
 
-**Context:** autoresearch #43 finding ("ve weight decay 0.001–0.003 improves;
-0.005 regresses") refers to AdamW optimizer group configuration inside nanochat's
-training code — not an exposed CLI flag. The nanochat submodule is currently
-empty (not initialised), so the actual default and the correct mechanism are
-unknown.
+**Confirmed:** nanochat's `--weight-decay` (default 0.2) is for the Muon
+optimizer on weight matrices. Ve embedding tables are in the AdamW embedding
+group — a separate optimizer group — and have no exposed CLI flag for weight
+decay. Current AdamW embedding group weight decay default is unknown.
 
-**Required action (before Phase 0 run is valid):**
-1. Initialise the nanochat submodule and inspect `scripts/base_train.py` for how
-   ve embedding tables are assigned to optimizer groups and what weight decay is
-   applied to them.
-2. If the current default is already in 0.001–0.003: document it in this entry
-   and proceed. No code change needed.
-3. If not: add a `--ve-weight-decay` CLI flag to `base_train.py` (patch nanochat
-   submodule), apply it to the ve optimizer group, and restore the flag in
-   `train_d12.sh`.
+**Required action:**
+1. Initialise nanochat submodule.
+2. Locate the AdamW embedding optimizer group in `scripts/base_train.py` and
+   check what weight decay it currently applies to ve tables.
+3. Add `--ve-weight-decay` arg (type=float, default=current value) and wire it
+   to the ve embedding group.
+4. Restore `--ve-weight-decay=0.001` in `train_d12.sh`.
 
-**Desired value once mechanism is understood:** 0.001 — conservative lower bound
-of the known-good range; least regularization known to improve. 0.002 (midpoint)
-is equally arbitrary; 0.003 risks unnecessary shrinkage for a diagnostic baseline.
+**Target value:** 0.001 — lower bound of known-good range (autoresearch #43).
+0.005 regresses; no finer data within 0.001–0.003.
 
 ---
 
