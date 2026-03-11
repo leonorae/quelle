@@ -184,22 +184,21 @@ reimplementing fragile checkpoint-loading logic.
 
 ## 2026-03-11 (config)
 
-### D15 — ve_weight_decay: OPEN, needs nanochat patch
+### D15 — ve_weight_decay: RESOLVED
 
-**Status:** Blocked pending nanochat submodule init + patch.
+**Status:** Done. nanochat patched; `train_d12.sh` updated.
 
-**Confirmed:** nanochat's `--weight-decay` (default 0.2) is for the Muon
-optimizer on weight matrices. Ve embedding tables are in the AdamW embedding
-group — a separate optimizer group — and have no exposed CLI flag for weight
-decay. Current AdamW embedding group weight decay default is unknown.
+**Confirmed:** `value_embeds_params` AdamW group had `weight_decay=0.0`
+hardcoded in `nanochat/gpt.py:setup_optimizer`. The `--weight-decay` flag only
+ever fed the Muon groups.
 
-**Required action:**
-1. Initialise nanochat submodule.
-2. Locate the AdamW embedding optimizer group in `scripts/base_train.py` and
-   check what weight decay it currently applies to ve tables.
-3. Add `--ve-weight-decay` arg (type=float, default=current value) and wire it
-   to the ve embedding group.
-4. Restore `--ve-weight-decay=0.001` in `train_d12.sh`.
+**Resolution:**
+- `nanochat/nanochat/gpt.py`: added `ve_weight_decay=0.0` param; wired to
+  `value_embeds_params` AdamW group (default 0.0 preserves prior behaviour).
+- `nanochat/scripts/base_train.py`: added `--ve-weight-decay` (type=float,
+  default=0.0); passed as `ve_weight_decay` to `setup_optimizer`.
+- `experiments/VVVVVV/src/train_d12.sh`: `--ve-weight-decay=0.001` added.
+- nanochat submodule pinned to commit `77bf5f4` on branch `patch/ve-weight-decay`.
 
 **Target value:** 0.001 — lower bound of known-good range (autoresearch #43).
 0.005 regresses; no finer data within 0.001–0.003.
