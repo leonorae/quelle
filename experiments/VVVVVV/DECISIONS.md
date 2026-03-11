@@ -184,20 +184,31 @@ reimplementing fragile checkpoint-loading logic.
 
 ## 2026-03-11 (config)
 
-### D15 — ve_weight_decay=0.001 for Phase 0 baseline
+### D15 — ve_weight_decay: OPEN, not yet pinned
 
-**Decision:** Pass `--ve-weight-decay=0.001` explicitly in `train_d12.sh`.
+**Status:** Blocked. `--ve-weight-decay` is not a recognised CLI arg in
+`nanochat/scripts/base_train.py` (`unrecognized arguments` error at runtime).
+The flag has been removed from `train_d12.sh` pending resolution.
 
-**Rationale:** autoresearch #43 established that ve weight decay 0.001–0.003
-improves over the default; 0.005 regresses. No finer data exists within the
-range. 0.001 is chosen as the conservative lower bound: it is the minimum
-regularization known to improve, minimising risk of over-regularizing the small
-ve table. The midpoint (0.002) would be equally arbitrary. The upper end (0.003)
-risks unnecessary shrinkage of the table for a diagnostic baseline.
+**Context:** autoresearch #43 finding ("ve weight decay 0.001–0.003 improves;
+0.005 regresses") refers to AdamW optimizer group configuration inside nanochat's
+training code — not an exposed CLI flag. The nanochat submodule is currently
+empty (not initialised), so the actual default and the correct mechanism are
+unknown.
 
-If ve_weight_decay turns out to be a meaningful variable for Phase 1, sweep it
-then. For Phase 0, pinning to 0.001 makes the baseline reproducible and avoids
-an unrecorded nanochat default.
+**Required action (before Phase 0 run is valid):**
+1. Initialise the nanochat submodule and inspect `scripts/base_train.py` for how
+   ve embedding tables are assigned to optimizer groups and what weight decay is
+   applied to them.
+2. If the current default is already in 0.001–0.003: document it in this entry
+   and proceed. No code change needed.
+3. If not: add a `--ve-weight-decay` CLI flag to `base_train.py` (patch nanochat
+   submodule), apply it to the ve optimizer group, and restore the flag in
+   `train_d12.sh`.
+
+**Desired value once mechanism is understood:** 0.001 — conservative lower bound
+of the known-good range; least regularization known to improve. 0.002 (midpoint)
+is equally arbitrary; 0.003 risks unnecessary shrinkage for a diagnostic baseline.
 
 ---
 

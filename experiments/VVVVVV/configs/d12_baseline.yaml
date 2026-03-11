@@ -20,9 +20,11 @@ sequence_len: 2048            # [nanochat default]
 # --- Value embeddings ---
 # ve placement: alternating layers, has_ve() pattern  [nanochat default]
 # ve table size: vocab_size × n_embd                  [nanochat default]
-ve_weight_decay: 0.001        # [explicit] lower bound of known-good range 0.001–0.003 (autoresearch #43)
-                              # 0.005 regresses; 0.001 is the conservative end, minimal regularization
-                              # that is known to improve. No finer data available within the range.
+ve_weight_decay: ???          # OPEN QUESTION: --ve-weight-decay is not a recognised nanochat CLI arg.
+                              # autoresearch #43 finding is about AdamW optimizer group config inside
+                              # nanochat, not a CLI flag. Need to: (a) check what nanochat's current
+                              # default ve weight decay is, (b) either confirm it's in 0.001–0.003 or
+                              # patch nanochat to expose it. See DECISIONS.md D15.
 ve_gate_channels: 12          # [nanochat default as of autoresearch #43] fixed [:12] residual slice
                               # Note: run_phase0.py auto-detects this from model.config.ve_gate_channels
 

@@ -57,7 +57,6 @@ uv run python -m scripts.base_train \
     --model-tag=d12 \
     --window-pattern=L \
     --device-batch-size=16 \
-    --ve-weight-decay=0.001 \
     2>&1 | tee -a "$LOG_FILE"
 
 echo ""
