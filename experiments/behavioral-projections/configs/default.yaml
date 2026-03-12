@@ -26,6 +26,19 @@ tuned_lens:
   layers: null                    # null = all layers
   output_dir: "outputs/tuned_lens"
 
+# --- Phase 0.5b: Pairwise-optimized Tuned Lens (Condition 2) ---
+pairwise_lens:
+  lr: 0.001
+  epochs: 30
+  pair_batch_size: 256            # pairs per gradient step
+  weight_decay: 0.01
+  patience: 10                    # early stopping patience
+  num_pairs_train: 20000          # pairs for pairwise training
+  num_pairs_eval: 10000           # pairs for evaluation
+  vocab_size: 50304               # Pythia default
+  layers: null                    # null = all layers
+  output_dir: "outputs/pairwise_lens"
+
 # --- Phase 1: Bisimulation probe ---
 bisimulation:
   ridge_alpha: 1.0
@@ -35,6 +48,7 @@ bisimulation:
     same_group_ratio: 0.3       # fraction of pairs from same prompt_group_id
     cross_category_ratio: 0.5   # fraction of pairs from different categories
   layers: null                  # null = all layers; or list e.g. [6, 12, 18, 23]
+  rank_sweep: [1024, 512, 256, 128, 64, 32, 16]  # d_proj values for effective rank analysis
 
 # --- Projection training (Phases 1-4) ---
 projection:

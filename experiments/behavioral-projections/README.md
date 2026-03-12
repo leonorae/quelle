@@ -28,8 +28,10 @@ saturates in few iterations, that geometry is concentrated.
 ## Status
 
 **Phase 0** (activation caching): pipeline validated on 221-prompt bootstrap set (Pythia-410m, CPU)
-**Phase 0.5** (tuned lens baseline): implemented, ready to run on full corpus
-**Phase 1** (bisimulation probe): pipeline validated (R²≈0 expected on placeholder prompts)
+**Phase 0.5** (tuned lens baseline): complete on bootstrap — ρ≈0.88, R²≈0.5–0.6 at middle layers
+**Phase 0.5b** (pairwise lens): implemented, ready to run
+**Phase 1** (bisimulation probe): Ridge validated; learned projection + rank sweep implemented
+**Phase 1.5** (three-condition comparison): implemented — `src/compare_conditions.py`
 **Phases 2–4**: stubbed
 
 ## Phases
@@ -37,8 +39,10 @@ saturates in few iterations, that geometry is concentrated.
 | Phase | Name | Gate condition | Status |
 |-------|------|---------------|--------|
 | 0 | Activation caching | — | validated (bootstrap) |
-| 0.5 | Tuned Lens baseline | Phase 0 cached | implemented |
-| 1 | Bisimulation probe | Phase 0 cached for Pythia-410m | validated (bootstrap) |
+| 0.5 | Tuned Lens baseline | Phase 0 cached | complete (bootstrap) |
+| 0.5b | Pairwise Tuned Lens | Phase 0 cached | implemented |
+| 1 | Bisimulation probe | Phase 0 cached for Pythia-410m | implemented |
+| 1.5 | Three-condition comparison | Phases 0.5, 0.5b, 1 | implemented |
 | 2 | Iterative peeling | Phase 1 R² measured | stub |
 | 3 | Contrastive prompt discrimination | Phase 0 cached | stub |
 | 4 | Perturbation-sensitivity map | Phase 0 cached | stub |

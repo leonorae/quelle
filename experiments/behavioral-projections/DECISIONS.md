@@ -308,3 +308,57 @@ not just the easy separations.
 **Implementation:** Self-contained `src/tuned_lens_baseline.py`, not the
 `tuned-lens` PyPI package. ~250 lines, reuses existing activation loading and
 KL computation infrastructure. No new dependencies.
+
+---
+
+### D14 — Three-condition pairwise comparison design
+
+**Decision:** Run three conditions on the same pair set to determine whether
+pairwise structure exists in activation space and which tool captures it:
+
+| Condition | Architecture | Objective | File |
+|---|---|---|---|
+| C1: Standard Tuned Lens | Per-layer Linear(d,V) | KL(lens ‖ true) per prompt | `src/tuned_lens_baseline.py` |
+| C2: Pairwise Tuned Lens | Per-layer Linear(d,V) | MSE(lens_KL_pair, true_KL_pair) | `src/pairwise_lens.py` |
+| C3: Bisimulation Probe | P ∈ R^{d_proj × d} | MSE(‖P(h_i - h_j)‖₂, true_KL) | `src/bisimulation_probe.py` |
+
+**Evaluation:** Same for all three — R² and Spearman ρ on held-out stratified
+pairs, per layer. `src/compare_conditions.py` runs all three and produces
+comparison plots.
+
+**Interpretation:**
+- C1 ≈ C2 ≈ C3 → no pairwise structure, standard lens suffices
+- C2 > C1 → pairwise optimization helps at those layers
+- C3 > C2 → direct pairwise metric captures structure that decode-then-compare misses
+
+**Effective rank sweep (C3 only):** After main comparison, sweep
+d_proj ∈ {1024, 512, 256, 128, 64, 32, 16}. The knee in R² vs d_proj is the
+effective behavioral dimensionality per layer.
+
+**Rationale:** The tuned lens baseline (D13) showed ρ ≈ 0.88 but R² ≈ 0.5-0.6
+at middle layers, with an R² dip at layers 17–19 while Spearman stays high.
+This means ranking is good but magnitudes are wrong — exactly the gap a pairwise
+objective might close. The three-condition comparison determines whether pairwise
+structure exists and which downstream tool to use.
+
+---
+
+### D15 — Learned projection for multi-dimensional bisimulation
+
+**Decision:** Condition 3 uses two approaches: Ridge regression (1D baseline,
+already existed) and a learned linear projection via Adam (multi-dimensional).
+
+**Ridge:** `w^T (h_i - h_j) → scalar KL`. The coefficient vector is a 1D
+projection. Already validated in smoketest.
+
+**Learned:** `BisimulationProjection(d_hidden, d_proj)`: a single `nn.Linear`
+(no bias) mapping h-differences to d_proj dimensions. Predicted KL =
+L2 norm of the projection. Trained with MSE loss via Adam.
+
+**Why both:** Ridge is the closed-form baseline — fast, no hyperparameters
+beyond alpha, guaranteed global optimum for the linear case. The learned
+projection handles the non-linearity of the L2 norm and supports d_proj > 1
+for the rank sweep.
+
+**Note:** The L2 norm makes the loss non-convex in P even though the
+architecture is linear. Ridge avoids this by predicting scalar KL directly.

@@ -22,6 +22,7 @@ from __future__ import annotations
 import argparse
 import csv
 import json
+import math
 from pathlib import Path
 from typing import Any
 
@@ -30,6 +31,7 @@ import torch
 import torch.nn as nn
 import yaml
 from safetensors.torch import load_file
+from scipy.stats import spearmanr
 from sklearn.linear_model import Ridge
 from tqdm import tqdm
 
@@ -328,6 +330,330 @@ def analyze_projection(
     return result
 
 
+# --- Learned multi-dimensional projection (Condition 3) ---
+
+class BisimulationProjection(nn.Module):
+    """Learned linear projection P: R^d_hidden → R^d_proj.
+
+    Predicts pairwise behavioral distance as ||P(h_i - h_j)||_2.
+    """
+
+    def __init__(self, d_hidden: int, d_proj: int):
+        super().__init__()
+        self.proj = nn.Linear(d_hidden, d_proj, bias=False)
+
+    def forward(self, delta_h: torch.Tensor) -> torch.Tensor:
+        """(B, d_hidden) → (B,) predicted KL."""
+        projected = self.proj(delta_h)  # (B, d_proj)
+        return projected.norm(dim=-1)   # (B,)
+
+
+def train_learned_projection(
+    hidden_states: torch.Tensor,  # (N, d_hidden)
+    true_kl: torch.Tensor,        # (M,) precomputed pair targets
+    pairs: torch.Tensor,          # (M, 2)
+    d_proj: int,
+    lr: float = 0.001,
+    weight_decay: float = 0.01,
+    epochs: int = 50,
+    batch_size: int = 256,
+    patience: int = 10,
+) -> tuple[BisimulationProjection, dict[str, Any]]:
+    """Train a learned linear projection for bisimulation distance.
+
+    Returns the trained projection and training metrics.
+    """
+    d_hidden = hidden_states.shape[1]
+    model = BisimulationProjection(d_hidden, d_proj)
+    optimizer = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=weight_decay)
+
+    h = hidden_states.float()
+    n_pairs = len(pairs)
+    n_batches = math.ceil(n_pairs / batch_size)
+    best_loss = float("inf")
+    no_improve = 0
+
+    for epoch in range(epochs):
+        perm = torch.randperm(n_pairs)
+        epoch_loss = 0.0
+
+        for b in range(n_batches):
+            idx = perm[b * batch_size : (b + 1) * batch_size]
+            pair_batch = pairs[idx]
+            target = true_kl[idx]
+
+            delta_h = h[pair_batch[:, 0]] - h[pair_batch[:, 1]]
+            pred = model(delta_h)
+
+            loss = nn.functional.mse_loss(pred, target)
+
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
+
+            epoch_loss += loss.item()
+
+        avg_loss = epoch_loss / n_batches
+        if avg_loss < best_loss - 1e-6:
+            best_loss = avg_loss
+            no_improve = 0
+        else:
+            no_improve += 1
+
+        if no_improve >= patience:
+            break
+
+    metrics = {
+        "best_mse": float(best_loss),
+        "epochs_trained": epoch + 1,
+        "d_proj": d_proj,
+    }
+    return model, metrics
+
+
+def evaluate_learned_projection(
+    model: BisimulationProjection,
+    hidden_states: torch.Tensor,
+    true_kl: torch.Tensor,
+    pairs: torch.Tensor,
+) -> dict[str, float]:
+    """Evaluate learned projection on held-out pairs."""
+    h = hidden_states.float()
+
+    with torch.no_grad():
+        delta_h = h[pairs[:, 0]] - h[pairs[:, 1]]
+        pred = model(delta_h).numpy()
+
+    y_np = true_kl.numpy()
+
+    ss_res = np.sum((y_np - pred) ** 2)
+    ss_tot = np.sum((y_np - y_np.mean()) ** 2)
+    r2 = 1 - ss_res / ss_tot if ss_tot > 0 else 0.0
+
+    rho, pval = spearmanr(y_np, pred)
+
+    return {
+        "r2": float(r2),
+        "spearman_rho": float(rho),
+        "spearman_pval": float(pval),
+        "n_pairs": int(len(y_np)),
+    }
+
+
+def run_rank_sweep(
+    cache_dir: Path,
+    config: dict[str, Any],
+    output_dir: Path,
+) -> list[dict[str, Any]]:
+    """Sweep d_proj for the bisimulation probe across all layers.
+
+    For each layer and each d_proj, train a learned projection and evaluate.
+    Returns per-layer, per-d_proj results.
+
+    The effective rank is the d_proj where performance starts dropping.
+    """
+    bisim_cfg = config["bisimulation"]
+    proj_cfg = config.get("projection", {})
+    seed = config.get("seed", 42)
+
+    d_proj_values = bisim_cfg.get("rank_sweep", [1024, 512, 256, 128, 64, 32, 16])
+    lr = proj_cfg.get("lr", 0.001)
+    wd = proj_cfg.get("weight_decay", 0.01)
+    epochs = proj_cfg.get("epochs", 50)
+    batch_size = proj_cfg.get("batch_size", 256)
+    patience_val = proj_cfg.get("patience", 10)
+
+    with open(cache_dir / "metadata.json") as f:
+        metadata = json.load(f)
+    n_total = len(metadata)
+
+    same_group_ratio = bisim_cfg.get("pair_sampling", {}).get("same_group_ratio", 0.3)
+    n_train = bisim_cfg.get("num_pairs_train", 50000)
+    n_val = bisim_cfg.get("num_pairs_val", 10000)
+
+    train_pairs = sample_pairs(n_total, n_train, metadata, same_group_ratio, seed=seed + 600)
+    val_pairs = sample_pairs(n_total, n_val, metadata, same_group_ratio, seed=seed + 601)
+
+    # Determine layers
+    first_batch = sorted(
+        f for f in cache_dir.glob("batch_[0-9]*.safetensors")
+        if "_full" not in f.name
+    )[0]
+    sample_data = load_file(first_batch)
+    n_layers = sum(1 for k in sample_data if k.startswith("layer_"))
+    del sample_data
+
+    layers = bisim_cfg.get("layers") or list(range(n_layers))
+
+    all_results = []
+
+    for layer in layers:
+        print(f"\n{'='*60}")
+        print(f"Rank sweep — Layer {layer}")
+        print(f"{'='*60}")
+
+        hidden_states, logprobs, indices, residuals = load_cached_layer(cache_dir, layer)
+        d_hidden = hidden_states.shape[1]
+
+        # Compute KL targets for this layer's pairs
+        train_kl = compute_pairwise_kl_batched(
+            logprobs, indices, residuals, train_pairs,
+        )
+        val_kl = compute_pairwise_kl_batched(
+            logprobs, indices, residuals, val_pairs,
+        )
+
+        for d_proj in d_proj_values:
+            if d_proj > d_hidden:
+                continue
+
+            print(f"\n  d_proj = {d_proj}")
+            model, train_metrics = train_learned_projection(
+                hidden_states, train_kl, train_pairs, d_proj,
+                lr=lr, weight_decay=wd, epochs=epochs,
+                batch_size=batch_size, patience=patience_val,
+            )
+
+            val_metrics = evaluate_learned_projection(
+                model, hidden_states, val_kl, val_pairs,
+            )
+
+            result = {
+                "layer": layer,
+                "d_proj": d_proj,
+                "train_mse": train_metrics["best_mse"],
+                "epochs_trained": train_metrics["epochs_trained"],
+                "r2": val_metrics["r2"],
+                "spearman_rho": val_metrics["spearman_rho"],
+                "n_pairs": val_metrics["n_pairs"],
+            }
+            all_results.append(result)
+            print(f"    R² = {val_metrics['r2']:.4f}, ρ = {val_metrics['spearman_rho']:.4f}")
+
+    # Save
+    sweep_dir = output_dir / "rank_sweep"
+    sweep_dir.mkdir(parents=True, exist_ok=True)
+
+    with open(sweep_dir / "rank_sweep_results.json", "w") as f:
+        json.dump(all_results, f, indent=2)
+
+    with open(sweep_dir / "rank_sweep_results.csv", "w", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerow(["layer", "d_proj", "r2", "spearman_rho", "train_mse"])
+        for r in all_results:
+            writer.writerow([
+                r["layer"], r["d_proj"],
+                f"{r['r2']:.4f}", f"{r['spearman_rho']:.4f}",
+                f"{r['train_mse']:.4f}",
+            ])
+
+    print(f"\nRank sweep results saved to {sweep_dir}")
+    return all_results
+
+
+def run_condition3(
+    cache_dir: Path,
+    config: dict[str, Any],
+    output_dir: Path,
+) -> list[dict[str, Any]]:
+    """Run Condition 3: Ridge baseline per layer + learned projection at d_proj=d_hidden.
+
+    This is the main per-layer comparison entry point (not the rank sweep).
+    Returns per-layer results with R² and Spearman.
+    """
+    bisim_cfg = config["bisimulation"]
+    proj_cfg = config.get("projection", {})
+    seed = config.get("seed", 42)
+
+    with open(cache_dir / "metadata.json") as f:
+        metadata = json.load(f)
+    n_total = len(metadata)
+
+    same_group_ratio = bisim_cfg.get("pair_sampling", {}).get("same_group_ratio", 0.3)
+    n_train = bisim_cfg.get("num_pairs_train", 50000)
+    n_val = bisim_cfg.get("num_pairs_val", 10000)
+
+    train_pairs = sample_pairs(n_total, n_train, metadata, same_group_ratio, seed=seed)
+    val_pairs = sample_pairs(n_total, n_val, metadata, same_group_ratio, seed=seed + 1)
+
+    first_batch = sorted(
+        f for f in cache_dir.glob("batch_[0-9]*.safetensors")
+        if "_full" not in f.name
+    )[0]
+    sample_data = load_file(first_batch)
+    n_layers = sum(1 for k in sample_data if k.startswith("layer_"))
+    del sample_data
+
+    layers = bisim_cfg.get("layers") or list(range(n_layers))
+
+    results = []
+    for layer in layers:
+        print(f"\n{'='*60}")
+        print(f"Condition 3 — Layer {layer}")
+        print(f"{'='*60}")
+
+        hidden_states, logprobs, indices, residuals = load_cached_layer(cache_dir, layer)
+        d_hidden = hidden_states.shape[1]
+
+        # Ridge baseline
+        ridge, ridge_train = train_ridge(
+            hidden_states, logprobs, indices, residuals,
+            train_pairs, alpha=bisim_cfg.get("ridge_alpha", 1.0),
+        )
+        ridge_val = evaluate_ridge(
+            ridge, hidden_states, logprobs, indices, residuals, val_pairs,
+        )
+
+        # Learned projection at d_proj = d_hidden
+        train_kl = compute_pairwise_kl_batched(
+            logprobs, indices, residuals, train_pairs,
+        )
+        val_kl = compute_pairwise_kl_batched(
+            logprobs, indices, residuals, val_pairs,
+        )
+
+        proj_model, proj_train = train_learned_projection(
+            hidden_states, train_kl, train_pairs, d_proj=d_hidden,
+            lr=proj_cfg.get("lr", 0.001),
+            weight_decay=proj_cfg.get("weight_decay", 0.01),
+            epochs=proj_cfg.get("epochs", 50),
+            batch_size=proj_cfg.get("batch_size", 256),
+            patience=proj_cfg.get("patience", 10),
+        )
+        proj_val = evaluate_learned_projection(
+            proj_model, hidden_states, val_kl, val_pairs,
+        )
+
+        result = {
+            "layer": layer,
+            "ridge_r2": ridge_val["r2_val"],
+            "ridge_spearman": ridge_val["spearman_rho"],
+            "learned_r2": proj_val["r2"],
+            "learned_spearman": proj_val["spearman_rho"],
+            "n_pairs": ridge_val["n_pairs"],
+        }
+        results.append(result)
+        print(f"  Ridge:   R² = {ridge_val['r2_val']:.4f}, ρ = {ridge_val['spearman_rho']:.4f}")
+        print(f"  Learned: R² = {proj_val['r2']:.4f}, ρ = {proj_val['spearman_rho']:.4f}")
+
+    # Save
+    output_dir.mkdir(parents=True, exist_ok=True)
+    with open(output_dir / "condition3_results.json", "w") as f:
+        json.dump(results, f, indent=2)
+
+    with open(output_dir / "condition3_results.csv", "w", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerow(["layer", "ridge_r2", "ridge_spearman", "learned_r2", "learned_spearman"])
+        for r in results:
+            writer.writerow([
+                r["layer"],
+                f"{r['ridge_r2']:.4f}", f"{r['ridge_spearman']:.4f}",
+                f"{r['learned_r2']:.4f}", f"{r['learned_spearman']:.4f}",
+            ])
+
+    return results
+
+
 # --- Main ---
 
 def main():
@@ -336,6 +662,12 @@ def main():
     parser.add_argument("--cache", type=str, required=True, help="Path to cached activations dir")
     parser.add_argument("--layer", type=int, default=None, help="Single layer to probe (default: all)")
     parser.add_argument("--output-dir", type=str, default=None)
+    parser.add_argument(
+        "--mode", choices=["ridge", "condition3", "rank-sweep"], default="ridge",
+        help="ridge: original Ridge-only run. "
+             "condition3: Ridge + learned projection per layer. "
+             "rank-sweep: d_proj sweep for effective rank analysis.",
+    )
     args = parser.parse_args()
 
     config = load_config(args.config)
@@ -345,12 +677,18 @@ def main():
     output_dir = Path(args.output_dir) if args.output_dir else Path(config["output"]["projection_dir"])
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    # Load metadata
+    if args.mode == "condition3":
+        run_condition3(cache_dir, config, output_dir)
+        return
+
+    if args.mode == "rank-sweep":
+        run_rank_sweep(cache_dir, config, output_dir)
+        return
+
+    # --- Original Ridge-only mode ---
     with open(cache_dir / "metadata.json") as f:
         metadata = json.load(f)
 
-    # Determine layers to probe
-    # Peek at first batch file to count layers
     first_batch = sorted(f for f in cache_dir.glob("batch_[0-9]*.safetensors") if "_full" not in f.name)[0]
     sample_data = load_file(first_batch)
     n_layers = sum(1 for k in sample_data.keys() if k.startswith("layer_"))
@@ -365,7 +703,6 @@ def main():
 
     print(f"Probing {len(layers)} layers: {layers}")
 
-    # Sample pairs (shared across layers for comparability)
     n_total = len(metadata)
     n_train = bisim_cfg["num_pairs_train"]
     n_val = bisim_cfg["num_pairs_val"]
@@ -384,7 +721,6 @@ def main():
         hidden_states, logprobs, indices, residuals = load_cached_layer(cache_dir, layer)
         print(f"Loaded {hidden_states.shape[0]} activations, d={hidden_states.shape[1]}")
 
-        # Ridge baseline
         ridge, train_metrics = train_ridge(
             hidden_states, logprobs, indices, residuals,
             train_pairs, alpha=bisim_cfg["ridge_alpha"],
@@ -404,11 +740,9 @@ def main():
         }
         all_results.append(result)
 
-    # Save summary
     with open(output_dir / "bisimulation_summary.json", "w") as f:
         json.dump(all_results, f, indent=2)
 
-    # CSV log for quick inspection
     with open(output_dir / "bisimulation_results.csv", "w", newline="") as f:
         writer = csv.writer(f)
         writer.writerow(["layer", "r2_train", "r2_val", "spearman_rho", "rank_90", "rank_95"])

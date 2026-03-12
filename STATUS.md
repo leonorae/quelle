@@ -3,7 +3,7 @@
 > Quick briefing for agents and humans. Read this instead of traversing
 > the full wiki to understand what is happening right now.
 >
-> **Updated**: 2026-03-12
+> **Updated**: 2026-03-12 (three-condition comparison scaffolded)
 
 ---
 
@@ -11,7 +11,7 @@
 
 | Experiment | Status | Owner | Next action |
 |---|---|---|---|
-| `behavioral-projections` | pipeline-validated | claude-opus-4-6 | Build benchmark + semantic + perturbation components (D8), then Phase 0 on candidate pool |
+| `behavioral-projections` | three-condition-implemented | claude-opus-4-6 | Run `compare_conditions.py` on bootstrap cache, then rerun on 7k corpus |
 | `variable-bitrate-reasoning` | running | claude-sonnet-4-6 | Run full training, fill RESULTS.md |
 | `VVVVVV` | planning | claude-sonnet-4-6 | Run Phase 0 training at d12, fill RESULTS.md Q0.1–Q0.3 |
 
