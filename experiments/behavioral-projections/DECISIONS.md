@@ -175,3 +175,41 @@ range. Random sampling over-represents the modal KL values and under-represents
 the tails. Greedy selection is simple, deterministic, and doesn't require tuning
 a clustering algorithm. This component is gated on Phase 0 completing on the
 candidate pool.
+
+---
+
+### D11 — Shared corpus with slicer (CLIP projection)
+
+**Decision:** Design the behavioral-projections corpus as the primary prompt set
+and share it with the slicer experiment (Pythia → CLIP projection). Do not
+design a separate slicer-specific corpus.
+
+**Rationale:**
+
+1. *Direct comparability.* Same activations, different projection targets
+   (CLIP vs KL-behavioral). Sharing inputs makes null-space comparison
+   well-posed: "what does CLIP consider irrelevant that the bisimulation
+   probe considers critical?" requires identical input activations.
+
+2. *Infrastructure alignment.* Both experiments read from the same
+   `probe_cache/` slugs. Slicer's `probe_clip_vectors` and behavioral
+   projection metrics sit on the same layer axis. No architectural changes
+   needed.
+
+3. *No cross-pollution.* CLIP projection and bisimulation projection have
+   independent training targets. Sharing input prompts creates alignment,
+   not leakage.
+
+**Design constraint:** Ensure the semantic diversity component (D8, ~2k prompts)
+includes a concrete/perceptual cluster (~300–500 prompts with strong visual
+grounding — objects, scenes, spatial relationships) so slicer has adequate
+signal in the shared set.
+
+**If slicer needs more:** Add visual-semantic prompts as a sixth component
+rather than distorting the existing five. Do not skew the corpus toward
+perceptual content at the expense of abstract reasoning, math, or code coverage.
+
+**Pythia training set (The Pile):** No filtering required. We measure activation
+geometry (KL divergence, projection structure), not factual accuracy.
+Memorized-vs-novel is real signal, not contamination. The five-component design
+already prevents over-representation of Pile-adjacent text.
