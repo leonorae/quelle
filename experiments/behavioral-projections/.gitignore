@@ -1,0 +1,14 @@
+# Cached activations (large)
+data/activations/
+data/
+
+# Trained projections and outputs
+outputs/
+
+# Python
+__pycache__/
+*.pyc
+*.egg-info/
+
+# Jupyter
+.ipynb_checkpoints/

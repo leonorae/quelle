@@ -1,0 +1,43 @@
+seed: 42
+
+# --- Models ---
+model:
+  name: "EleutherAI/pythia-410m"
+  dtype: "float16"              # model weights precision
+  device: "auto"                # auto, cpu, cuda, cuda:0
+
+# --- Phase 0: Activation caching ---
+cache:
+  output_dir: "data/activations"
+  batch_size: 4                 # prompts per batch (adjust for VRAM)
+  precision_hidden: "float16"
+  precision_logits: "float32"
+  top_k_logits: 100             # store top-k logprobs + indices
+  store_full_sequence: false    # true = also store all token positions (large)
+  prompts_per_file: 50          # prompts per safetensors file
+
+# --- Phase 1: Bisimulation probe ---
+bisimulation:
+  ridge_alpha: 1.0
+  num_pairs_train: 50000
+  num_pairs_val: 10000
+  pair_sampling:
+    same_group_ratio: 0.3       # fraction of pairs from same prompt_group_id
+    cross_category_ratio: 0.5   # fraction of pairs from different categories
+  layers: null                  # null = all layers; or list e.g. [6, 12, 18, 23]
+
+# --- Projection training (Phases 1-4) ---
+projection:
+  d_proj: null                  # null = d_hidden (no compression); int for reduced dim
+  lr: 0.001
+  epochs: 50
+  batch_size: 256
+  weight_decay: 0.01
+  log_every: 10
+  patience: 10                  # early stopping patience
+
+# --- Output ---
+output:
+  log_dir: "outputs/logs"
+  projection_dir: "outputs/projections"
+  figures_dir: "outputs/figures"
