@@ -11,7 +11,7 @@
 
 | Experiment | Status | Owner | Next action |
 |---|---|---|---|
-| `behavioral-projections` | scaffolding | claude-opus-4-6 | Generate bootstrap prompts, run Phase 0 on Pythia-410m |
+| `behavioral-projections` | pipeline-validated | claude-sonnet-4-6 | Curate real prompt set (5–10k), re-run Phase 0–1 on Pythia-410m |
 | `variable-bitrate-reasoning` | running | claude-sonnet-4-6 | Run full training, fill RESULTS.md |
 | `VVVVVV` | planning | claude-sonnet-4-6 | Run Phase 0 training at d12, fill RESULTS.md Q0.1–Q0.3 |
 

@@ -1,0 +1,25 @@
+{"prompt_id": "agent_000", "text": "Review this code and suggest improvements:\n```python\ndef f(x): return x if x > 0 else -x\n```", "category": "agent", "group_id": null}
+{"prompt_id": "agent_001", "text": "Review this code and suggest improvements:\n```python\nfor i in range(len(lst)): result.append(lst[i] * 2)\n```", "category": "agent", "group_id": null}
+{"prompt_id": "agent_002", "text": "Review this code and suggest improvements:\n```python\ndata = json.loads(open('file.json').read())\n```", "category": "agent", "group_id": null}
+{"prompt_id": "agent_003", "text": "Review this code and suggest improvements:\n```python\nif x == None: return False\n```", "category": "agent", "group_id": null}
+{"prompt_id": "agent_004", "text": "Review this code and suggest improvements:\n```python\ntry: result = compute()\nexcept: pass\n```", "category": "agent", "group_id": null}
+{"prompt_id": "agent_005", "text": "Debug this error: TypeError: 'NoneType' object is not iterable", "category": "agent", "group_id": null}
+{"prompt_id": "agent_006", "text": "Debug this error: KeyError: 'missing_key'", "category": "agent", "group_id": null}
+{"prompt_id": "agent_007", "text": "Debug this error: IndexError: list index out of range", "category": "agent", "group_id": null}
+{"prompt_id": "agent_008", "text": "Debug this error: RecursionError: maximum recursion depth exceeded", "category": "agent", "group_id": null}
+{"prompt_id": "agent_009", "text": "Debug this error: MemoryError during large matrix multiplication", "category": "agent", "group_id": null}
+{"prompt_id": "agent_010", "text": "Plan the implementation of: a REST API with authentication", "category": "agent", "group_id": null}
+{"prompt_id": "agent_011", "text": "What architecture would you use for a REST API with authentication?", "category": "agent", "group_id": null}
+{"prompt_id": "agent_012", "text": "Explain the tradeoffs between a REST API with authentication and a real-time chat system.", "category": "agent", "group_id": null}
+{"prompt_id": "agent_013", "text": "Plan the implementation of: a real-time chat system", "category": "agent", "group_id": null}
+{"prompt_id": "agent_014", "text": "What architecture would you use for a real-time chat system?", "category": "agent", "group_id": null}
+{"prompt_id": "agent_015", "text": "Explain the tradeoffs between a real-time chat system and a REST API with authentication.", "category": "agent", "group_id": null}
+{"prompt_id": "agent_016", "text": "Plan the implementation of: a distributed task queue", "category": "agent", "group_id": null}
+{"prompt_id": "agent_017", "text": "What architecture would you use for a distributed task queue?", "category": "agent", "group_id": null}
+{"prompt_id": "agent_018", "text": "Explain the tradeoffs between a distributed task queue and an image processing pipeline.", "category": "agent", "group_id": null}
+{"prompt_id": "agent_019", "text": "Plan the implementation of: an image processing pipeline", "category": "agent", "group_id": null}
+{"prompt_id": "agent_020", "text": "What architecture would you use for an image processing pipeline?", "category": "agent", "group_id": null}
+{"prompt_id": "agent_021", "text": "Explain the tradeoffs between an image processing pipeline and a real-time chat system.", "category": "agent", "group_id": null}
+{"prompt_id": "agent_022", "text": "Plan the implementation of: a recommendation engine", "category": "agent", "group_id": null}
+{"prompt_id": "agent_023", "text": "What architecture would you use for a recommendation engine?", "category": "agent", "group_id": null}
+{"prompt_id": "agent_024", "text": "Explain the tradeoffs between a recommendation engine and a real-time chat system.", "category": "agent", "group_id": null}

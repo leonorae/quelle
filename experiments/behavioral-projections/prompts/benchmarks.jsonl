@@ -1,0 +1,60 @@
+{"prompt_id": "bench_000", "text": "What is the capital of France?", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_001", "text": "Explain the concept of France in simple terms.", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_002", "text": "What is the result of France?", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_003", "text": "True or false: France", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_004", "text": "What is the capital of Japan?", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_005", "text": "Explain the concept of Japan in simple terms.", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_006", "text": "What is the result of Japan?", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_007", "text": "True or false: Japan", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_008", "text": "What is the capital of Brazil?", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_009", "text": "Explain the concept of Brazil in simple terms.", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_010", "text": "What is the result of Brazil?", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_011", "text": "True or false: Brazil", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_012", "text": "What is the capital of Egypt?", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_013", "text": "Explain the concept of Egypt in simple terms.", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_014", "text": "What is the result of Egypt?", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_015", "text": "True or false: Egypt", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_016", "text": "What is the capital of Canada?", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_017", "text": "Explain the concept of Canada in simple terms.", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_018", "text": "What is the result of Canada?", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_019", "text": "True or false: Canada", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_020", "text": "What is the capital of photosynthesis?", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_021", "text": "Explain the concept of photosynthesis in simple terms.", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_022", "text": "What is the result of photosynthesis?", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_023", "text": "True or false: photosynthesis", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_024", "text": "What is the capital of entropy?", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_025", "text": "Explain the concept of entropy in simple terms.", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_026", "text": "What is the result of entropy?", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_027", "text": "True or false: entropy", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_028", "text": "What is the capital of recursion?", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_029", "text": "Explain the concept of recursion in simple terms.", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_030", "text": "What is the result of recursion?", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_031", "text": "True or false: recursion", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_032", "text": "What is the capital of democracy?", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_033", "text": "Explain the concept of democracy in simple terms.", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_034", "text": "What is the result of democracy?", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_035", "text": "True or false: democracy", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_036", "text": "What is the capital of inflation?", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_037", "text": "Explain the concept of inflation in simple terms.", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_038", "text": "What is the result of inflation?", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_039", "text": "True or false: inflation", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_040", "text": "What is the capital of 12 * 15?", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_041", "text": "Explain the concept of 12 * 15 in simple terms.", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_042", "text": "What is the result of 12 * 15?", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_043", "text": "True or false: 12 * 15", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_044", "text": "What is the capital of sqrt(144)?", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_045", "text": "Explain the concept of sqrt(144) in simple terms.", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_046", "text": "What is the result of sqrt(144)?", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_047", "text": "True or false: sqrt(144)", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_048", "text": "What is the capital of 2^10?", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_049", "text": "Explain the concept of 2^10 in simple terms.", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_050", "text": "What is the result of 2^10?", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_051", "text": "True or false: 2^10", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_052", "text": "What is the capital of the integral of x^2?", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_053", "text": "Explain the concept of the integral of x^2 in simple terms.", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_054", "text": "What is the result of the integral of x^2?", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_055", "text": "True or false: the integral of x^2", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_056", "text": "What is the capital of log2(256)?", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_057", "text": "Explain the concept of log2(256) in simple terms.", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_058", "text": "What is the result of log2(256)?", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_059", "text": "True or false: log2(256)", "category": "benchmark", "group_id": null}

@@ -1,0 +1,221 @@
+{"prompt_id": "bench_000", "text": "What is the capital of France?", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_001", "text": "Explain the concept of France in simple terms.", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_002", "text": "What is the result of France?", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_003", "text": "True or false: France", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_004", "text": "What is the capital of Japan?", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_005", "text": "Explain the concept of Japan in simple terms.", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_006", "text": "What is the result of Japan?", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_007", "text": "True or false: Japan", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_008", "text": "What is the capital of Brazil?", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_009", "text": "Explain the concept of Brazil in simple terms.", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_010", "text": "What is the result of Brazil?", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_011", "text": "True or false: Brazil", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_012", "text": "What is the capital of Egypt?", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_013", "text": "Explain the concept of Egypt in simple terms.", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_014", "text": "What is the result of Egypt?", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_015", "text": "True or false: Egypt", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_016", "text": "What is the capital of Canada?", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_017", "text": "Explain the concept of Canada in simple terms.", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_018", "text": "What is the result of Canada?", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_019", "text": "True or false: Canada", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_020", "text": "What is the capital of photosynthesis?", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_021", "text": "Explain the concept of photosynthesis in simple terms.", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_022", "text": "What is the result of photosynthesis?", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_023", "text": "True or false: photosynthesis", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_024", "text": "What is the capital of entropy?", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_025", "text": "Explain the concept of entropy in simple terms.", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_026", "text": "What is the result of entropy?", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_027", "text": "True or false: entropy", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_028", "text": "What is the capital of recursion?", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_029", "text": "Explain the concept of recursion in simple terms.", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_030", "text": "What is the result of recursion?", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_031", "text": "True or false: recursion", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_032", "text": "What is the capital of democracy?", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_033", "text": "Explain the concept of democracy in simple terms.", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_034", "text": "What is the result of democracy?", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_035", "text": "True or false: democracy", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_036", "text": "What is the capital of inflation?", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_037", "text": "Explain the concept of inflation in simple terms.", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_038", "text": "What is the result of inflation?", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_039", "text": "True or false: inflation", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_040", "text": "What is the capital of 12 * 15?", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_041", "text": "Explain the concept of 12 * 15 in simple terms.", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_042", "text": "What is the result of 12 * 15?", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_043", "text": "True or false: 12 * 15", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_044", "text": "What is the capital of sqrt(144)?", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_045", "text": "Explain the concept of sqrt(144) in simple terms.", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_046", "text": "What is the result of sqrt(144)?", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_047", "text": "True or false: sqrt(144)", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_048", "text": "What is the capital of 2^10?", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_049", "text": "Explain the concept of 2^10 in simple terms.", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_050", "text": "What is the result of 2^10?", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_051", "text": "True or false: 2^10", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_052", "text": "What is the capital of the integral of x^2?", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_053", "text": "Explain the concept of the integral of x^2 in simple terms.", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_054", "text": "What is the result of the integral of x^2?", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_055", "text": "True or false: the integral of x^2", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_056", "text": "What is the capital of log2(256)?", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_057", "text": "Explain the concept of log2(256) in simple terms.", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_058", "text": "What is the result of log2(256)?", "category": "benchmark", "group_id": null}
+{"prompt_id": "bench_059", "text": "True or false: log2(256)", "category": "benchmark", "group_id": null}
+{"prompt_id": "sem_000", "text": "Describe a bicycle.", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_001", "text": "What does a bicycle look like?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_002", "text": "How is a bicycle used?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_003", "text": "Where would you find a bicycle?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_004", "text": "What is a bicycle made of?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_005", "text": "Describe a lighthouse.", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_006", "text": "What does a lighthouse look like?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_007", "text": "How is a lighthouse used?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_008", "text": "Where would you find a lighthouse?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_009", "text": "What is a lighthouse made of?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_010", "text": "Describe a telescope.", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_011", "text": "What does a telescope look like?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_012", "text": "How is a telescope used?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_013", "text": "Where would you find a telescope?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_014", "text": "What is a telescope made of?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_015", "text": "Describe a violin.", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_016", "text": "What does a violin look like?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_017", "text": "How is a violin used?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_018", "text": "Where would you find a violin?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_019", "text": "What is a violin made of?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_020", "text": "Describe a glacier.", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_021", "text": "What does a glacier look like?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_022", "text": "How is a glacier used?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_023", "text": "Where would you find a glacier?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_024", "text": "What is a glacier made of?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_025", "text": "Describe a compass.", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_026", "text": "What does a compass look like?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_027", "text": "How is a compass used?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_028", "text": "Where would you find a compass?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_029", "text": "What is a compass made of?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_030", "text": "Describe a cathedral.", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_031", "text": "What does a cathedral look like?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_032", "text": "How is a cathedral used?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_033", "text": "Where would you find a cathedral?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_034", "text": "What is a cathedral made of?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_035", "text": "Describe a volcano.", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_036", "text": "What does a volcano look like?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_037", "text": "How is a volcano used?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_038", "text": "Where would you find a volcano?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_039", "text": "What is a volcano made of?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_040", "text": "Describe a submarine.", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_041", "text": "What does a submarine look like?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_042", "text": "How is a submarine used?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_043", "text": "Where would you find a submarine?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_044", "text": "What is a submarine made of?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_045", "text": "Describe a windmill.", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_046", "text": "What does a windmill look like?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_047", "text": "How is a windmill used?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_048", "text": "Where would you find a windmill?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_049", "text": "What is a windmill made of?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_050", "text": "What is justice?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_051", "text": "How would you explain justice to a child?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_052", "text": "Why is justice important?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_053", "text": "Give an example of justice.", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_054", "text": "How does justice relate to everyday life?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_055", "text": "What is nostalgia?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_056", "text": "How would you explain nostalgia to a child?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_057", "text": "Why is nostalgia important?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_058", "text": "Give an example of nostalgia.", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_059", "text": "How does nostalgia relate to everyday life?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_060", "text": "What is entropy?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_061", "text": "How would you explain entropy to a child?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_062", "text": "Why is entropy important?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_063", "text": "Give an example of entropy.", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_064", "text": "How does entropy relate to everyday life?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_065", "text": "What is freedom?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_066", "text": "How would you explain freedom to a child?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_067", "text": "Why is freedom important?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_068", "text": "Give an example of freedom.", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_069", "text": "How does freedom relate to everyday life?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_070", "text": "What is ambiguity?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_071", "text": "How would you explain ambiguity to a child?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_072", "text": "Why is ambiguity important?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_073", "text": "Give an example of ambiguity.", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_074", "text": "How does ambiguity relate to everyday life?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_075", "text": "What is causality?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_076", "text": "How would you explain causality to a child?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_077", "text": "Why is causality important?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_078", "text": "Give an example of causality.", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_079", "text": "How does causality relate to everyday life?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_080", "text": "What is emergence?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_081", "text": "How would you explain emergence to a child?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_082", "text": "Why is emergence important?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_083", "text": "Give an example of emergence.", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_084", "text": "How does emergence relate to everyday life?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_085", "text": "What is irony?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_086", "text": "How would you explain irony to a child?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_087", "text": "Why is irony important?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_088", "text": "Give an example of irony.", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_089", "text": "How does irony relate to everyday life?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_090", "text": "What is symmetry?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_091", "text": "How would you explain symmetry to a child?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_092", "text": "Why is symmetry important?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_093", "text": "Give an example of symmetry.", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_094", "text": "How does symmetry relate to everyday life?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_095", "text": "What is resilience?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_096", "text": "How would you explain resilience to a child?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_097", "text": "Why is resilience important?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_098", "text": "Give an example of resilience.", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_099", "text": "How does resilience relate to everyday life?", "category": "semantic", "group_id": null}
+{"prompt_id": "pertbase_00_base", "text": "What is the capital of France?", "category": "perturbation", "group_id": "pertbase_00", "perturbation_type": "base"}
+{"prompt_id": "pertbase_00_rephrase", "text": "Please answer: What is the capital of France?", "category": "perturbation", "group_id": "pertbase_00", "perturbation_type": "rephrase"}
+{"prompt_id": "pertbase_00_context_added", "text": "Note: this is part of a research evaluation. What is the capital of France?", "category": "perturbation", "group_id": "pertbase_00", "perturbation_type": "context_added"}
+{"prompt_id": "pertbase_00_authority_bias", "text": "Leading experts agree that the answer to this is clear. What is the capital of France?", "category": "perturbation", "group_id": "pertbase_00", "perturbation_type": "authority_bias"}
+{"prompt_id": "pertbase_00_negation", "text": "Consider the opposite perspective. What is the capital of France?", "category": "perturbation", "group_id": "pertbase_00", "perturbation_type": "negation"}
+{"prompt_id": "pertbase_00_register_shift", "text": "_ _ _ _ What is the capital of France?", "category": "perturbation", "group_id": "pertbase_00", "perturbation_type": "register_shift"}
+{"prompt_id": "pertbase_01_base", "text": "What is the result of Brazil?", "category": "perturbation", "group_id": "pertbase_01", "perturbation_type": "base"}
+{"prompt_id": "pertbase_01_rephrase", "text": "Please answer: What is the result of Brazil?", "category": "perturbation", "group_id": "pertbase_01", "perturbation_type": "rephrase"}
+{"prompt_id": "pertbase_01_context_added", "text": "Note: this is part of a research evaluation. What is the result of Brazil?", "category": "perturbation", "group_id": "pertbase_01", "perturbation_type": "context_added"}
+{"prompt_id": "pertbase_01_authority_bias", "text": "Leading experts agree that the answer to this is clear. What is the result of Brazil?", "category": "perturbation", "group_id": "pertbase_01", "perturbation_type": "authority_bias"}
+{"prompt_id": "pertbase_01_negation", "text": "Consider the opposite perspective. What is the result of Brazil?", "category": "perturbation", "group_id": "pertbase_01", "perturbation_type": "negation"}
+{"prompt_id": "pertbase_01_register_shift", "text": "_ _ _ _ What is the result of Brazil?", "category": "perturbation", "group_id": "pertbase_01", "perturbation_type": "register_shift"}
+{"prompt_id": "pertbase_02_base", "text": "What is the capital of photosynthesis?", "category": "perturbation", "group_id": "pertbase_02", "perturbation_type": "base"}
+{"prompt_id": "pertbase_02_rephrase", "text": "Please answer: What is the capital of photosynthesis?", "category": "perturbation", "group_id": "pertbase_02", "perturbation_type": "rephrase"}
+{"prompt_id": "pertbase_02_context_added", "text": "Note: this is part of a research evaluation. What is the capital of photosynthesis?", "category": "perturbation", "group_id": "pertbase_02", "perturbation_type": "context_added"}
+{"prompt_id": "pertbase_02_authority_bias", "text": "Leading experts agree that the answer to this is clear. What is the capital of photosynthesis?", "category": "perturbation", "group_id": "pertbase_02", "perturbation_type": "authority_bias"}
+{"prompt_id": "pertbase_02_negation", "text": "Consider the opposite perspective. What is the capital of photosynthesis?", "category": "perturbation", "group_id": "pertbase_02", "perturbation_type": "negation"}
+{"prompt_id": "pertbase_02_register_shift", "text": "_ _ _ _ What is the capital of photosynthesis?", "category": "perturbation", "group_id": "pertbase_02", "perturbation_type": "register_shift"}
+{"prompt_id": "pertbase_03_base", "text": "What is the result of recursion?", "category": "perturbation", "group_id": "pertbase_03", "perturbation_type": "base"}
+{"prompt_id": "pertbase_03_rephrase", "text": "Please answer: What is the result of recursion?", "category": "perturbation", "group_id": "pertbase_03", "perturbation_type": "rephrase"}
+{"prompt_id": "pertbase_03_context_added", "text": "Note: this is part of a research evaluation. What is the result of recursion?", "category": "perturbation", "group_id": "pertbase_03", "perturbation_type": "context_added"}
+{"prompt_id": "pertbase_03_authority_bias", "text": "Leading experts agree that the answer to this is clear. What is the result of recursion?", "category": "perturbation", "group_id": "pertbase_03", "perturbation_type": "authority_bias"}
+{"prompt_id": "pertbase_03_negation", "text": "Consider the opposite perspective. What is the result of recursion?", "category": "perturbation", "group_id": "pertbase_03", "perturbation_type": "negation"}
+{"prompt_id": "pertbase_03_register_shift", "text": "_ _ _ _ What is the result of recursion?", "category": "perturbation", "group_id": "pertbase_03", "perturbation_type": "register_shift"}
+{"prompt_id": "pertbase_04_base", "text": "What is the capital of 12 * 15?", "category": "perturbation", "group_id": "pertbase_04", "perturbation_type": "base"}
+{"prompt_id": "pertbase_04_rephrase", "text": "Please answer: What is the capital of 12 * 15?", "category": "perturbation", "group_id": "pertbase_04", "perturbation_type": "rephrase"}
+{"prompt_id": "pertbase_04_context_added", "text": "Note: this is part of a research evaluation. What is the capital of 12 * 15?", "category": "perturbation", "group_id": "pertbase_04", "perturbation_type": "context_added"}
+{"prompt_id": "pertbase_04_authority_bias", "text": "Leading experts agree that the answer to this is clear. What is the capital of 12 * 15?", "category": "perturbation", "group_id": "pertbase_04", "perturbation_type": "authority_bias"}
+{"prompt_id": "pertbase_04_negation", "text": "Consider the opposite perspective. What is the capital of 12 * 15?", "category": "perturbation", "group_id": "pertbase_04", "perturbation_type": "negation"}
+{"prompt_id": "pertbase_04_register_shift", "text": "_ _ _ _ What is the capital of 12 * 15?", "category": "perturbation", "group_id": "pertbase_04", "perturbation_type": "register_shift"}
+{"prompt_id": "pertbase_05_base", "text": "What is the result of 2^10?", "category": "perturbation", "group_id": "pertbase_05", "perturbation_type": "base"}
+{"prompt_id": "pertbase_05_rephrase", "text": "Please answer: What is the result of 2^10?", "category": "perturbation", "group_id": "pertbase_05", "perturbation_type": "rephrase"}
+{"prompt_id": "pertbase_05_context_added", "text": "Note: this is part of a research evaluation. What is the result of 2^10?", "category": "perturbation", "group_id": "pertbase_05", "perturbation_type": "context_added"}
+{"prompt_id": "pertbase_05_authority_bias", "text": "Leading experts agree that the answer to this is clear. What is the result of 2^10?", "category": "perturbation", "group_id": "pertbase_05", "perturbation_type": "authority_bias"}
+{"prompt_id": "pertbase_05_negation", "text": "Consider the opposite perspective. What is the result of 2^10?", "category": "perturbation", "group_id": "pertbase_05", "perturbation_type": "negation"}
+{"prompt_id": "pertbase_05_register_shift", "text": "_ _ _ _ What is the result of 2^10?", "category": "perturbation", "group_id": "pertbase_05", "perturbation_type": "register_shift"}
+{"prompt_id": "agent_000", "text": "Review this code and suggest improvements:\n```python\ndef f(x): return x if x > 0 else -x\n```", "category": "agent", "group_id": null}
+{"prompt_id": "agent_001", "text": "Review this code and suggest improvements:\n```python\nfor i in range(len(lst)): result.append(lst[i] * 2)\n```", "category": "agent", "group_id": null}
+{"prompt_id": "agent_002", "text": "Review this code and suggest improvements:\n```python\ndata = json.loads(open('file.json').read())\n```", "category": "agent", "group_id": null}
+{"prompt_id": "agent_003", "text": "Review this code and suggest improvements:\n```python\nif x == None: return False\n```", "category": "agent", "group_id": null}
+{"prompt_id": "agent_004", "text": "Review this code and suggest improvements:\n```python\ntry: result = compute()\nexcept: pass\n```", "category": "agent", "group_id": null}
+{"prompt_id": "agent_005", "text": "Debug this error: TypeError: 'NoneType' object is not iterable", "category": "agent", "group_id": null}
+{"prompt_id": "agent_006", "text": "Debug this error: KeyError: 'missing_key'", "category": "agent", "group_id": null}
+{"prompt_id": "agent_007", "text": "Debug this error: IndexError: list index out of range", "category": "agent", "group_id": null}
+{"prompt_id": "agent_008", "text": "Debug this error: RecursionError: maximum recursion depth exceeded", "category": "agent", "group_id": null}
+{"prompt_id": "agent_009", "text": "Debug this error: MemoryError during large matrix multiplication", "category": "agent", "group_id": null}
+{"prompt_id": "agent_010", "text": "Plan the implementation of: a REST API with authentication", "category": "agent", "group_id": null}
+{"prompt_id": "agent_011", "text": "What architecture would you use for a REST API with authentication?", "category": "agent", "group_id": null}
+{"prompt_id": "agent_012", "text": "Explain the tradeoffs between a REST API with authentication and a real-time chat system.", "category": "agent", "group_id": null}
+{"prompt_id": "agent_013", "text": "Plan the implementation of: a real-time chat system", "category": "agent", "group_id": null}
+{"prompt_id": "agent_014", "text": "What architecture would you use for a real-time chat system?", "category": "agent", "group_id": null}
+{"prompt_id": "agent_015", "text": "Explain the tradeoffs between a real-time chat system and a REST API with authentication.", "category": "agent", "group_id": null}
+{"prompt_id": "agent_016", "text": "Plan the implementation of: a distributed task queue", "category": "agent", "group_id": null}
+{"prompt_id": "agent_017", "text": "What architecture would you use for a distributed task queue?", "category": "agent", "group_id": null}
+{"prompt_id": "agent_018", "text": "Explain the tradeoffs between a distributed task queue and an image processing pipeline.", "category": "agent", "group_id": null}
+{"prompt_id": "agent_019", "text": "Plan the implementation of: an image processing pipeline", "category": "agent", "group_id": null}
+{"prompt_id": "agent_020", "text": "What architecture would you use for an image processing pipeline?", "category": "agent", "group_id": null}
+{"prompt_id": "agent_021", "text": "Explain the tradeoffs between an image processing pipeline and a real-time chat system.", "category": "agent", "group_id": null}
+{"prompt_id": "agent_022", "text": "Plan the implementation of: a recommendation engine", "category": "agent", "group_id": null}
+{"prompt_id": "agent_023", "text": "What architecture would you use for a recommendation engine?", "category": "agent", "group_id": null}
+{"prompt_id": "agent_024", "text": "Explain the tradeoffs between a recommendation engine and a real-time chat system.", "category": "agent", "group_id": null}

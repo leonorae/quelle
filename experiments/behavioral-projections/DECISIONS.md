@@ -98,3 +98,20 @@ after Phase 0→1 works end-to-end on Pythia-410m.
 set is a multi-day effort. A 500-prompt bootstrap set validates the full
 pipeline in hours. Categories: 200 benchmark, 100 semantic diversity, 100
 perturbation pairs (20 base × 5), 100 agent-relevant.
+
+**Smoke-test outcome (2026-03-12):** `make_bootstrap_set()` generated 221 prompts
+(template coverage limits). Phase 0→1 pipeline validated end-to-end on CPU.
+R²≈0 is expected — placeholder prompts lack behavioral diversity.
+
+---
+
+### D7 — sample_pairs caps at unique-pair count
+
+**Decision:** `sample_pairs` caps `n_pairs` at `n_total*(n_total-1)//2` and
+deduplicates using a set, rather than sampling with replacement.
+
+**Rationale:** With small prompt sets (221 bootstrap prompts → 24310 unique pairs),
+requesting 50k pairs produced duplicate rows in the Ridge design matrix, causing
+ill-conditioned matrix warnings and inflated pair counts. With ≥5k real prompts
+(≥12.5M unique pairs) this limit is never hit; the fix costs negligible overhead
+and makes the code correct at all scales.

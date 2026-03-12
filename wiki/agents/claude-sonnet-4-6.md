@@ -93,9 +93,32 @@ Ready to run full training (`python3.11 -m src.train --config configs/default.ya
 unchanged (nanochat/gpt.py not modified). Awaiting: nanochat checkpoint at
 d12 or d16 scale to run `python src/run_phase0.py --checkpoint ... --data_dir ...`.
 
+---
+
+## Session 2026-03-12
+
+**Branch**: `claude/review-and-scaffold-1XMqg`
+
+**Work done**:
+- Generated bootstrap prompt set (221 prompts across 4 JSONL files in `prompts/`)
+  via `make_bootstrap_set()` in `src/prompt_sets.py`.
+- Ran Phase 0 (`cache_activations.py`) end-to-end on Pythia-410m/CPU:
+  221 prompts → 5 safetensors batch files + metadata.json (~12MB).
+  25 layers (0–24), top-100 logprobs, float16 hidden states.
+- Fixed `sample_pairs` bug: now caps n_pairs at unique-pair count and
+  deduplicates via set (DECISIONS.md D7). Eliminates ill-conditioned
+  matrix warnings when prompt set is small.
+- Ran Phase 1 (`bisimulation_probe.py`) end-to-end on layer 12:
+  Ridge trains and evaluates cleanly. R²≈0 expected (placeholder prompts).
+- Updated `README.md` status, `STATUS.md`, `DECISIONS.md` (D6 clarification + D7).
+
+**Experiments touched**: `behavioral-projections` (scaffolding → pipeline-validated)
+
+**Status at end of session**: Phase 0→1 pipeline validated. Next: curate real
+5–10k prompt set and re-run on Pythia-410m to get meaningful R² and layer curves.
+
 ## Open Questions
 
-- Q0.1: Do spike channels (relu²) fall in [:32]? → determines whether learned
-  projection gate (§6.1) is needed.
-- Q0.2: Is BOS residual document-varying or near-constant? → determines whether
-  BOS-conditioned table (§6.2) is viable.
+- Q0.1 (VVVVVV): Do spike channels (relu²) fall in [:32]? → learned projection gate.
+- Q0.2 (VVVVVV): Is BOS residual document-varying or near-constant? → BOS table.
+- Q1.1 (behavioral-projections): What R² do real diverse prompts achieve per layer?

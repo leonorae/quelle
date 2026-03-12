@@ -27,16 +27,16 @@ saturates in few iterations, that geometry is concentrated.
 
 ## Status
 
-**Phase 0** (activation caching): scaffolded, not yet run
-**Phase 1** (bisimulation probe): scaffolded, not yet run
+**Phase 0** (activation caching): pipeline validated on 221-prompt bootstrap set (Pythia-410m, CPU)
+**Phase 1** (bisimulation probe): pipeline validated (R²≈0 expected on placeholder prompts)
 **Phases 2–4**: stubbed
 
 ## Phases
 
 | Phase | Name | Gate condition | Status |
 |-------|------|---------------|--------|
-| 0 | Activation caching | — | scaffolded |
-| 1 | Bisimulation probe | Phase 0 cached for Pythia-410m | scaffolded |
+| 0 | Activation caching | — | validated (bootstrap) |
+| 1 | Bisimulation probe | Phase 0 cached for Pythia-410m | validated (bootstrap) |
 | 2 | Iterative peeling | Phase 1 R² measured | stub |
 | 3 | Contrastive prompt discrimination | Phase 0 cached | stub |
 | 4 | Perturbation-sensitivity map | Phase 0 cached | stub |

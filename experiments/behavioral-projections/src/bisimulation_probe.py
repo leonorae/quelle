@@ -152,10 +152,28 @@ def sample_pairs(
     If metadata is provided, same_group_ratio fraction of pairs come from
     prompts sharing a group_id (perturbation pairs). Rest are random.
 
+    Caps n_pairs at the number of unique pairs available (n_total choose 2)
+    to avoid duplicates when the prompt set is small.
+
     Returns: (n_pairs, 2) int64
     """
+    max_unique = n_total * (n_total - 1) // 2
+    if n_pairs > max_unique:
+        print(f"Warning: requested {n_pairs} pairs but only {max_unique} unique pairs "
+              f"exist for {n_total} prompts. Capping at {max_unique}.")
+        n_pairs = max_unique
+
     rng = np.random.RandomState(seed)
-    pairs = []
+    pair_set: set[tuple[int, int]] = set()
+    pairs: list[tuple[int, int]] = []
+
+    def add_pair(a: int, b: int) -> bool:
+        key = (min(a, b), max(a, b))
+        if key not in pair_set:
+            pair_set.add(key)
+            pairs.append((a, b))
+            return True
+        return False
 
     if metadata is not None:
         # Group prompts by group_id
@@ -168,19 +186,21 @@ def sample_pairs(
         # Sample within-group pairs
         n_group = int(n_pairs * same_group_ratio)
         group_keys = [k for k, v in groups.items() if len(v) >= 2]
-        for _ in range(n_group):
-            if not group_keys:
-                break
+        attempts = 0
+        while len(pairs) < n_group and group_keys and attempts < n_group * 10:
+            attempts += 1
             gk = rng.choice(group_keys)
             members = groups[gk]
             i, j = rng.choice(len(members), size=2, replace=False)
-            pairs.append((members[i], members[j]))
+            add_pair(members[i], members[j])
 
     # Fill remaining with random pairs
-    n_remaining = n_pairs - len(pairs)
-    for _ in range(n_remaining):
+    attempts = 0
+    max_attempts = (n_pairs - len(pairs)) * 20
+    while len(pairs) < n_pairs and attempts < max_attempts:
+        attempts += 1
         i, j = rng.choice(n_total, size=2, replace=False)
-        pairs.append((i, j))
+        add_pair(int(i), int(j))
 
     return torch.tensor(pairs, dtype=torch.int64)
 

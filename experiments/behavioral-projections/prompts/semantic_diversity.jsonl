@@ -1,0 +1,100 @@
+{"prompt_id": "sem_000", "text": "Describe a bicycle.", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_001", "text": "What does a bicycle look like?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_002", "text": "How is a bicycle used?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_003", "text": "Where would you find a bicycle?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_004", "text": "What is a bicycle made of?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_005", "text": "Describe a lighthouse.", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_006", "text": "What does a lighthouse look like?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_007", "text": "How is a lighthouse used?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_008", "text": "Where would you find a lighthouse?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_009", "text": "What is a lighthouse made of?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_010", "text": "Describe a telescope.", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_011", "text": "What does a telescope look like?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_012", "text": "How is a telescope used?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_013", "text": "Where would you find a telescope?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_014", "text": "What is a telescope made of?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_015", "text": "Describe a violin.", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_016", "text": "What does a violin look like?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_017", "text": "How is a violin used?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_018", "text": "Where would you find a violin?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_019", "text": "What is a violin made of?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_020", "text": "Describe a glacier.", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_021", "text": "What does a glacier look like?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_022", "text": "How is a glacier used?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_023", "text": "Where would you find a glacier?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_024", "text": "What is a glacier made of?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_025", "text": "Describe a compass.", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_026", "text": "What does a compass look like?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_027", "text": "How is a compass used?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_028", "text": "Where would you find a compass?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_029", "text": "What is a compass made of?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_030", "text": "Describe a cathedral.", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_031", "text": "What does a cathedral look like?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_032", "text": "How is a cathedral used?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_033", "text": "Where would you find a cathedral?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_034", "text": "What is a cathedral made of?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_035", "text": "Describe a volcano.", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_036", "text": "What does a volcano look like?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_037", "text": "How is a volcano used?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_038", "text": "Where would you find a volcano?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_039", "text": "What is a volcano made of?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_040", "text": "Describe a submarine.", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_041", "text": "What does a submarine look like?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_042", "text": "How is a submarine used?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_043", "text": "Where would you find a submarine?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_044", "text": "What is a submarine made of?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_045", "text": "Describe a windmill.", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_046", "text": "What does a windmill look like?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_047", "text": "How is a windmill used?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_048", "text": "Where would you find a windmill?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_049", "text": "What is a windmill made of?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_050", "text": "What is justice?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_051", "text": "How would you explain justice to a child?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_052", "text": "Why is justice important?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_053", "text": "Give an example of justice.", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_054", "text": "How does justice relate to everyday life?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_055", "text": "What is nostalgia?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_056", "text": "How would you explain nostalgia to a child?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_057", "text": "Why is nostalgia important?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_058", "text": "Give an example of nostalgia.", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_059", "text": "How does nostalgia relate to everyday life?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_060", "text": "What is entropy?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_061", "text": "How would you explain entropy to a child?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_062", "text": "Why is entropy important?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_063", "text": "Give an example of entropy.", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_064", "text": "How does entropy relate to everyday life?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_065", "text": "What is freedom?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_066", "text": "How would you explain freedom to a child?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_067", "text": "Why is freedom important?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_068", "text": "Give an example of freedom.", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_069", "text": "How does freedom relate to everyday life?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_070", "text": "What is ambiguity?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_071", "text": "How would you explain ambiguity to a child?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_072", "text": "Why is ambiguity important?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_073", "text": "Give an example of ambiguity.", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_074", "text": "How does ambiguity relate to everyday life?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_075", "text": "What is causality?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_076", "text": "How would you explain causality to a child?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_077", "text": "Why is causality important?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_078", "text": "Give an example of causality.", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_079", "text": "How does causality relate to everyday life?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_080", "text": "What is emergence?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_081", "text": "How would you explain emergence to a child?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_082", "text": "Why is emergence important?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_083", "text": "Give an example of emergence.", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_084", "text": "How does emergence relate to everyday life?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_085", "text": "What is irony?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_086", "text": "How would you explain irony to a child?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_087", "text": "Why is irony important?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_088", "text": "Give an example of irony.", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_089", "text": "How does irony relate to everyday life?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_090", "text": "What is symmetry?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_091", "text": "How would you explain symmetry to a child?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_092", "text": "Why is symmetry important?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_093", "text": "Give an example of symmetry.", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_094", "text": "How does symmetry relate to everyday life?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_095", "text": "What is resilience?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_096", "text": "How would you explain resilience to a child?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_097", "text": "Why is resilience important?", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_098", "text": "Give an example of resilience.", "category": "semantic", "group_id": null}
+{"prompt_id": "sem_099", "text": "How does resilience relate to everyday life?", "category": "semantic", "group_id": null}
