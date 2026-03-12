@@ -25,14 +25,34 @@ JSONL format, one JSON object per line:
 - `perturbation_pairs.jsonl` — 100 prompts (20 base × 5 perturbations)
 - `agent_decisions.jsonl` — 100 code review / debugging / planning prompts
 
-## Full set (5–10k prompts) — see D8–D10
+## Full set (6,860 prompts) — see D8–D11
 
-| Component | Target | Category tag | Strategy |
+| File | Count | Category | Strategy |
 |---|---|---|---|
-| Benchmark anchors | ~2k | `benchmark` | Curated MMLU/GSM8K subsets, hand-picked for domain breadth |
-| KL-spectrum filling | ~2k | `kl_selected` | Greedy facility-location on pairwise KL from Phase 0 candidate pool |
-| Perturbation families | ~2k | `perturbation` | ~400 bases × 5 LLM-generated variants (not templates) |
-| Semantic diversity | ~2k | `semantic` | Embed candidates, cluster, sample per cluster |
-| Sensitivity probes | ~1k | `sensitivity` | Gated on Phase 1 — high-residual prompts from bisimulation probe |
+| `benchmarks_mmlu.jsonl` | 2,160 | `benchmark` | 27 MMLU subjects × 80, curated for domain breadth |
+| `benchmarks_gsm8k.jsonl` | 300 | `benchmark` | GSM8K test split, stratified by step count (2–8 steps) |
+| `semantic_diversity_full.jsonl` | 2,000 | `semantic` | 14 domains, embed + k-means cluster + uniform sample (D11: 300 visual-grounding) |
+| `perturbation_families.jsonl` | 2,400 | `perturbation` | 400 bases × 6 (base + 5 perturbation types). Template-based placeholder — upgrade to LLM-generated per D9 |
+| `corpus_full.jsonl` | 6,860 | (merged) | All components, deduplicated, source_file tagged |
 
-Components 1–4 are pre-model. Component 5 is gated on Phase 1 results.
+### Remaining components (gated)
+
+| Component | Target | Category tag | Gate |
+|---|---|---|---|
+| KL-spectrum filling | ~2k | `kl_selected` | Phase 0 on candidate pool (D10) |
+| Sensitivity probes | ~1k | `sensitivity` | Phase 1 results (D8) |
+
+### Build scripts
+
+```bash
+python -m src.build_corpus              # MMLU + GSM8K → benchmarks_*.jsonl
+python -m src.build_semantic_diversity  # embed/cluster → semantic_diversity_full.jsonl
+python -m src.build_perturbations       # base selection + variants → perturbation_families.jsonl
+python -m src.merge_corpus              # merge → corpus_full.jsonl
+```
+
+### D11 note (slicer coordination)
+
+This corpus is shared with the slicer experiment (CLIP projection). The semantic
+diversity component includes 300 visual-grounding prompts for slicer compatibility.
+See DECISIONS.md D11.
