@@ -16,6 +16,16 @@ cache:
   store_full_sequence: false    # true = also store all token positions (large)
   prompts_per_file: 50          # prompts per safetensors file
 
+# --- Phase 0.5: Tuned Lens baseline ---
+tuned_lens:
+  lr: 0.001
+  epochs: 30
+  batch_size: 64                  # prompts per gradient step (not pairs)
+  weight_decay: 0.01
+  num_pairs_eval: 10000           # pairs for R²/Spearman evaluation
+  layers: null                    # null = all layers
+  output_dir: "outputs/tuned_lens"
+
 # --- Phase 1: Bisimulation probe ---
 bisimulation:
   ridge_alpha: 1.0

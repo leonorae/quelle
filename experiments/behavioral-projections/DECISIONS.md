@@ -257,3 +257,54 @@ to characterize geometry.
 (CLIP has no meaningful embedding for nonsense or garbled text). This is fine —
 they serve the behavioral-projections experiment specifically. Slicer can ignore
 this component or use it as a negative control.
+
+---
+
+### D13 — Phase 0.5: Tuned Lens baseline before bisimulation probe
+
+**Decision:** Before investing in the learned bisimulation probe, test whether
+a simple Tuned Lens (per-layer affine map h → logits, trained to minimize KL
+with the model's final output distribution) already captures pairwise behavioral
+distance.
+
+**Protocol:**
+
+1. Train one `nn.Linear(1024, 50304)` per layer, targeting the model's true
+   output distribution (reconstructed exactly from cached `layer_24` via
+   `ln_f` + `embed_out`).
+2. For each pair (i, j) at each layer: decode both hidden states through the
+   lens independently, compute symmetric KL between the decoded distributions.
+   Call this `tuned_lens_kl`.
+3. Compute `true_kl` from cached output logprobs (existing infrastructure).
+4. Regress `tuned_lens_kl` on `true_kl`. Report R² and Spearman ρ, **per layer**.
+
+**Primary output:** Per-layer R² curve, not a single number. The shape of the
+curve matters more than its magnitude:
+
+- Layer 24 (final): near-perfect reconstruction expected (it IS the output pathway)
+- Early layers: both Tuned Lens and bisimulation probe should be poor
+- **Middle layers are the decision point.** If Tuned Lens already has decent R²
+  at layers 10–18, independent decoding captures most pairwise structure and
+  the bisimulation probe adds little. If Tuned Lens R² is poor at those layers
+  while the bisimulation probe (when built) is better, the pairwise formulation
+  captures structure that independent decoding misses.
+
+**Gate:** The bisimulation probe (Phase 1) is only worth building if:
+- Tuned Lens R² at middle layers is below ~0.3, OR
+- The bisimulation probe can significantly exceed Tuned Lens R² at middle layers
+
+**Pair sampling for evaluation:** Must be **stratified by KL range**, not
+uniform random. Without stratification, most pairs have very high KL
+(different prompts → very different outputs), making regression trivially good
+("far-apart things are far apart"). Stratified sampling draws roughly equal
+proportions from:
+- Low-KL pairs (perturbation groups, same base prompt)
+- Medium-KL pairs (same domain, different prompts)
+- High-KL pairs (cross-domain)
+
+This ensures R² and Spearman reflect ranking quality across the full KL range,
+not just the easy separations.
+
+**Implementation:** Self-contained `src/tuned_lens_baseline.py`, not the
+`tuned-lens` PyPI package. ~250 lines, reuses existing activation loading and
+KL computation infrastructure. No new dependencies.

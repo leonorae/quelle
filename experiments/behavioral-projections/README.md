@@ -28,6 +28,7 @@ saturates in few iterations, that geometry is concentrated.
 ## Status
 
 **Phase 0** (activation caching): pipeline validated on 221-prompt bootstrap set (Pythia-410m, CPU)
+**Phase 0.5** (tuned lens baseline): implemented, ready to run on full corpus
 **Phase 1** (bisimulation probe): pipeline validated (R²≈0 expected on placeholder prompts)
 **Phases 2–4**: stubbed
 
@@ -36,11 +37,17 @@ saturates in few iterations, that geometry is concentrated.
 | Phase | Name | Gate condition | Status |
 |-------|------|---------------|--------|
 | 0 | Activation caching | — | validated (bootstrap) |
+| 0.5 | Tuned Lens baseline | Phase 0 cached | implemented |
 | 1 | Bisimulation probe | Phase 0 cached for Pythia-410m | validated (bootstrap) |
 | 2 | Iterative peeling | Phase 1 R² measured | stub |
 | 3 | Contrastive prompt discrimination | Phase 0 cached | stub |
 | 4 | Perturbation-sensitivity map | Phase 0 cached | stub |
 | 5 | Intersection analysis | ≥2 projections trained | stub (in analysis.py) |
+
+Phase 0.5 determines whether Phase 1 is worth building. If the Tuned Lens
+per-layer R² curve shows decent pairwise KL prediction at middle layers,
+independent decoding already captures behavioral distance and the bisimulation
+probe is redundant. See DECISIONS.md D13.
 
 ## Models
 
