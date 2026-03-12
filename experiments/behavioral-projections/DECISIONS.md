@@ -213,3 +213,47 @@ perceptual content at the expense of abstract reasoning, math, or code coverage.
 geometry (KL divergence, projection structure), not factual accuracy.
 Memorized-vs-novel is real signal, not contamination. The five-component design
 already prevents over-representation of Pile-adjacent text.
+
+---
+
+### D12 — Periphery probes: formally diverse inputs for activation-space coverage
+
+**Decision:** Add a sixth corpus component (~600 prompts) of intentionally
+unusual, malformed, or out-of-distribution inputs designed to activate
+low-density regions of the model's representational geometry.
+
+**Problem:** Components 1–4 are all well-formed English questions. This
+produces dense coverage of the "question-answering" region of activation space
+but systematically misses the periphery. The corpus has topical diversity but
+no formal diversity — every prompt is grammatical, single-language, and
+question-shaped.
+
+**Why periphery matters:** If the bisimulation probe's effective rank is 50 on
+routine text but jumps to 200 on unusual text, that's a finding: the model uses
+more of its geometry for hard/unfamiliar inputs. We can't detect
+context-dependent behavioral complexity without inputs that push into
+low-density regions. The KL-spectrum filling component (D10) will partially
+address this post-Phase-0, but we need some peripheral coverage in the initial
+corpus to get meaningful Phase 0/1 results at all.
+
+**Subcategories:**
+
+| Subcategory | ~Count | Rationale |
+|---|---|---|
+| Malformed syntax | ~80 | Truncated sentences, garbled grammar, typos — tests robustness of representational structure |
+| Mixed-language | ~80 | Code-switching, non-English, transliteration — different tokenization paths, different activation patterns |
+| Self-contradictory | ~60 | "Explain why water is dry" — forces model into unusual output distributions |
+| High-perplexity / nonsense | ~80 | Random token sequences, adversarial strings — extreme periphery of activation space |
+| Unusual registers | ~100 | Poetry, legalese, IRC logs, commit messages, recipes, stage directions — same semantics, different form |
+| Raw naturalistic text | ~100 | Plain prose excerpts (not questions) — fills the actual center of Pythia's training distribution, which our question-heavy corpus undersells |
+| Domain outliers | ~100 | Highly specialized jargon, archaic text, technical notation — things Pythia would find genuinely strange |
+
+**Design note:** These prompts are not expected to produce "good" model outputs.
+The point is the activations, not the generations. A prompt that produces
+confused or degenerate output is exactly the kind of input where the probe needs
+to characterize geometry.
+
+**Interaction with D11 (slicer):** Periphery probes are less useful for slicer
+(CLIP has no meaningful embedding for nonsense or garbled text). This is fine —
+they serve the behavioral-projections experiment specifically. Slicer can ignore
+this component or use it as a negative control.

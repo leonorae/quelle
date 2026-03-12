@@ -14,7 +14,7 @@ JSONL format, one JSON object per line:
 |-------|----------|-------------|
 | `prompt_id` | yes | Unique identifier |
 | `text` | yes | The prompt string |
-| `category` | yes | One of: benchmark, semantic, perturbation, agent, diagnostic |
+| `category` | yes | One of: benchmark, semantic, perturbation, periphery, agent, diagnostic |
 | `group_id` | no | Links perturbation variants to their base prompt |
 | `perturbation_type` | no | One of: base, rephrase, context_added, authority_bias, negation, register_shift |
 
@@ -25,7 +25,7 @@ JSONL format, one JSON object per line:
 - `perturbation_pairs.jsonl` — 100 prompts (20 base × 5 perturbations)
 - `agent_decisions.jsonl` — 100 code review / debugging / planning prompts
 
-## Full set (6,860 prompts) — see D8–D11
+## Full set (7,304 prompts) — see D8–D12
 
 | File | Count | Category | Strategy |
 |---|---|---|---|
@@ -33,7 +33,8 @@ JSONL format, one JSON object per line:
 | `benchmarks_gsm8k.jsonl` | 300 | `benchmark` | GSM8K test split, stratified by step count (2–8 steps) |
 | `semantic_diversity_full.jsonl` | 2,000 | `semantic` | 14 domains, embed + k-means cluster + uniform sample (D11: 300 visual-grounding) |
 | `perturbation_families.jsonl` | 2,400 | `perturbation` | 400 bases × 6 (base + 5 perturbation types). Template-based placeholder — upgrade to LLM-generated per D9 |
-| `corpus_full.jsonl` | 6,860 | (merged) | All components, deduplicated, source_file tagged |
+| `periphery_probes.jsonl` | 444 | `periphery` | Formally diverse inputs: malformed, mixed-language, contradictory, nonsense, unusual registers, naturalistic prose, domain outliers (D12) |
+| `corpus_full.jsonl` | 7,304 | (merged) | All components, deduplicated, source_file tagged |
 
 ### Remaining components (gated)
 
@@ -48,6 +49,7 @@ JSONL format, one JSON object per line:
 python -m src.build_corpus              # MMLU + GSM8K → benchmarks_*.jsonl
 python -m src.build_semantic_diversity  # embed/cluster → semantic_diversity_full.jsonl
 python -m src.build_perturbations       # base selection + variants → perturbation_families.jsonl
+python -m src.build_periphery           # malformed/nonsense/registers → periphery_probes.jsonl
 python -m src.merge_corpus              # merge → corpus_full.jsonl
 ```
 

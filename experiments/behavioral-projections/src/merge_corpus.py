@@ -7,6 +7,7 @@ Reads:
     benchmarks_gsm8k.jsonl
     semantic_diversity_full.jsonl
     perturbation_families.jsonl
+    periphery_probes.jsonl
 
 Produces: corpus_full.jsonl with manifest summary printed to stdout.
 """
@@ -24,6 +25,7 @@ COMPONENTS = [
     "benchmarks_gsm8k.jsonl",
     "semantic_diversity_full.jsonl",
     "perturbation_families.jsonl",
+    "periphery_probes.jsonl",
 ]
 
 
