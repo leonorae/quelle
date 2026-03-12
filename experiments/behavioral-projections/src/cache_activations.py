@@ -179,8 +179,13 @@ def cache_prompts(
     output_dir: Path,
     device: str,
     config: dict[str, Any],
+    append: bool = False,
 ) -> None:
-    """Cache activations for all prompts, writing batched safetensors files."""
+    """Cache activations for all prompts, writing batched safetensors files.
+
+    If append=True, load existing metadata to skip already-cached prompt_ids
+    and continue batch numbering from where it left off.
+    """
     cache_cfg = config["cache"]
     batch_size = cache_cfg["batch_size"]
     prompts_per_file = cache_cfg["prompts_per_file"]
@@ -190,8 +195,31 @@ def cache_prompts(
 
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    all_metadata = []
+    # Handle append mode: load existing metadata, skip cached prompts, resume numbering
+    existing_metadata = []
     file_idx = 0
+    if append:
+        meta_path = output_dir / "metadata.json"
+        if meta_path.exists():
+            with open(meta_path) as f:
+                existing_metadata = json.load(f)
+            cached_ids = {m["prompt_id"] for m in existing_metadata}
+            before = len(prompts)
+            prompts = [p for p in prompts if p["prompt_id"] not in cached_ids]
+            print(f"Append mode: {before - len(prompts)} already cached, {len(prompts)} new")
+
+            # Resume batch numbering after existing files
+            existing_batches = sorted(output_dir.glob("batch_*.safetensors"))
+            if existing_batches:
+                # Extract highest batch index (batch_007.safetensors -> 7)
+                last = existing_batches[-1].stem.replace("_full", "")
+                file_idx = int(last.split("_")[1]) + 1
+
+        if not prompts:
+            print("Nothing new to cache.")
+            return
+
+    all_metadata = list(existing_metadata)
     file_tensors: dict[str, list[torch.Tensor]] = {}
     file_full_tensors: dict[str, list[torch.Tensor]] = {}
     file_metadata: list[dict] = []
@@ -255,6 +283,7 @@ def main():
     parser.add_argument("--output-dir", type=str, default=None, help="Override output directory")
     parser.add_argument("--model", type=str, default=None, help="Override model name")
     parser.add_argument("--device", type=str, default=None, help="Override device")
+    parser.add_argument("--append", action="store_true", help="Skip already-cached prompts, append new ones")
     args = parser.parse_args()
 
     config = load_config(args.config)
@@ -274,7 +303,7 @@ def main():
     print(f"Loaded {len(prompts)} prompts")
 
     model, tokenizer, device = load_model_and_tokenizer(model_name, dtype, device)
-    cache_prompts(model, tokenizer, prompts, output_dir, device, config)
+    cache_prompts(model, tokenizer, prompts, output_dir, device, config, append=args.append)
 
 
 if __name__ == "__main__":
