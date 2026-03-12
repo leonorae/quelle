@@ -115,3 +115,63 @@ requesting 50k pairs produced duplicate rows in the Ridge design matrix, causing
 ill-conditioned matrix warnings and inflated pair counts. With ≥5k real prompts
 (≥12.5M unique pairs) this limit is never hit; the fix costs negligible overhead
 and makes the code correct at all scales.
+
+---
+
+## 2026-03-12
+
+### D8 — Full prompt set: diversity + LLM-informed selection (5–10k)
+
+**Decision:** The 5–10k prompt set uses five components, combining surface diversity
+with model-behavior-informed refinement:
+
+| Component | Target size | Selection strategy |
+|---|---|---|
+| **Benchmark anchors** | ~2k | Curated from MMLU/GSM8K subsets — hand-pick subjects for domain breadth |
+| **KL-spectrum filling** | ~2k | Run Pythia-410m on a ~20k candidate pool, compute pairwise KL on a sample, select prompts that maximize coverage of the KL range (greedy facility-location or similar) |
+| **Perturbation families** | ~2k | ~400 base prompts × 5 variants; use LLM-generated rephrasings instead of templates |
+| **Semantic diversity** | ~2k | Embed candidate prompts, cluster, sample from each cluster |
+| **Sensitivity probes** | ~1k | After Phase 1, select prompts where the bisimulation probe has high residual — stress-test the geometry |
+
+**Rationale:** Pure surface diversity is wasteful — many "diverse" prompts cluster
+in similar KL ranges in activation space. Pure behavior-informed selection risks
+overfitting to model-size quirks. The staged approach lets us start with curated
+diversity (benchmarks + semantic + perturbations), run Phase 0–1, then use results
+to fill gaps for Phases 2–4.
+
+**Staging:** Components 1–4 can be built before any model runs. Component 5
+(sensitivity probes) is gated on Phase 1 results — add it after the bisimulation
+probe is trained.
+
+**Format:** Same JSONL schema as D6. New categories: `kl_selected`, `sensitivity`.
+`group_id` required for perturbation families, null for others.
+
+---
+
+### D9 — LLM-generated rephrasings over template perturbations
+
+**Decision:** For the full prompt set, generate perturbation variants (rephrase,
+context_added, authority_bias, negation) using an LLM rather than templates.
+Store generated variants explicitly in JSONL.
+
+**Rationale:** Template perturbations (e.g., "Please answer: {X}") are mechanical
+and produce shallow variation in output distributions. LLM rephrasings produce
+more naturalistic within-group variation, which is critical for Phase 3
+(contrastive discrimination) to learn meaningful same-prompt clustering.
+Templates remain acceptable for `register_shift` (padding tokens), which is
+intentionally non-semantic.
+
+---
+
+### D10 — KL-spectrum filling via greedy selection
+
+**Decision:** After running Phase 0 on a large candidate pool (~20k), select ~2k
+prompts that maximize coverage of the pairwise KL range. Use a greedy
+facility-location approach: iteratively add the prompt whose inclusion most
+increases coverage of underrepresented KL bins.
+
+**Rationale:** The bisimulation probe needs training pairs spanning the full KL
+range. Random sampling over-represents the modal KL values and under-represents
+the tails. Greedy selection is simple, deterministic, and doesn't require tuning
+a clustering algorithm. This component is gated on Phase 0 completing on the
+candidate pool.

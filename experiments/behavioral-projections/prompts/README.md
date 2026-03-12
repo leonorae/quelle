@@ -24,3 +24,15 @@ JSONL format, one JSON object per line:
 - `semantic_diversity.jsonl` — 100 concrete/abstract concept prompts
 - `perturbation_pairs.jsonl` — 100 prompts (20 base × 5 perturbations)
 - `agent_decisions.jsonl` — 100 code review / debugging / planning prompts
+
+## Full set (5–10k prompts) — see D8–D10
+
+| Component | Target | Category tag | Strategy |
+|---|---|---|---|
+| Benchmark anchors | ~2k | `benchmark` | Curated MMLU/GSM8K subsets, hand-picked for domain breadth |
+| KL-spectrum filling | ~2k | `kl_selected` | Greedy facility-location on pairwise KL from Phase 0 candidate pool |
+| Perturbation families | ~2k | `perturbation` | ~400 bases × 5 LLM-generated variants (not templates) |
+| Semantic diversity | ~2k | `semantic` | Embed candidates, cluster, sample per cluster |
+| Sensitivity probes | ~1k | `sensitivity` | Gated on Phase 1 — high-residual prompts from bisimulation probe |
+
+Components 1–4 are pre-model. Component 5 is gated on Phase 1 results.
