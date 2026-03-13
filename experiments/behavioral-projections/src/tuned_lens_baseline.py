@@ -54,28 +54,22 @@ except ImportError:
 # Target logit reconstruction
 # ---------------------------------------------------------------------------
 
-def reconstruct_target_logits(
+def reconstruct_target_log_probs(
     cache_dir: Path,
     model_name: str,
-    dtype: str = "float16",
+    batch_size: int = 32,
 ) -> torch.Tensor:
-    """Reconstruct exact full-vocabulary logits from cached final-layer hidden states.
+    """Reconstruct target log-probabilities from cached final-layer hidden states.
 
-    Loads only the model's final LayerNorm + output embedding (embed_out),
-    applies them to cached layer_{n-1}, and returns (N, vocab_size) float32.
+    Extracts only the output-head weights (LayerNorm + embed_out) from the model
+    checkpoint — never instantiates the full model — then applies them in batches.
+
+    Returns (N, vocab_size) float32 log-probabilities.
     """
-    from transformers import AutoModelForCausalLM
+    import gc
+    from transformers.utils import cached_file
 
-    torch_dtype = getattr(torch, dtype, torch.float16)
-    print(f"Loading model {model_name} to extract output head...")
-    model = AutoModelForCausalLM.from_pretrained(
-        model_name, torch_dtype=torch_dtype,
-    )
-
-    ln_f = model.gpt_neox.final_layer_norm
-    embed_out = model.embed_out
-
-    # Find the final layer index from cached files
+    # Find final layer index
     first_batch = sorted(
         f for f in cache_dir.glob("batch_[0-9]*.safetensors")
         if "_full" not in f.name
@@ -85,20 +79,77 @@ def reconstruct_target_logits(
     final_layer = n_layers - 1
     del sample_data
 
+    # Load ONLY the output-head weights from the checkpoint (not the full model).
+    # Pythia/GPT-NeoX keys: gpt_neox.final_layer_norm.{weight,bias}, embed_out.{weight,bias}
+    head_keys = [
+        "gpt_neox.final_layer_norm.weight",
+        "gpt_neox.final_layer_norm.bias",
+        "embed_out.weight",
+        "embed_out.bias",
+    ]
+    print(f"Loading output head weights from {model_name}...")
+    head_tensors: dict[str, torch.Tensor] = {}
+    try:
+        from safetensors import safe_open
+        ckpt_path = cached_file(model_name, "model.safetensors")
+        with safe_open(ckpt_path, framework="pt", device="cpu") as f:
+            for key in head_keys:
+                if key in f.keys():
+                    head_tensors[key] = f.get_tensor(key)
+    except Exception:
+        # Fallback: sharded or bin format — load full model
+        from transformers import AutoModelForCausalLM
+        print("  (falling back to full model load)")
+        model = AutoModelForCausalLM.from_pretrained(
+            model_name, dtype=torch.float16, low_cpu_mem_usage=True,
+        )
+        head_tensors = {
+            "gpt_neox.final_layer_norm.weight": model.gpt_neox.final_layer_norm.weight.data,
+            "gpt_neox.final_layer_norm.bias": model.gpt_neox.final_layer_norm.bias.data,
+            "embed_out.weight": model.embed_out.weight.data,
+        }
+        if model.embed_out.bias is not None:
+            head_tensors["embed_out.bias"] = model.embed_out.bias.data
+        del model
+        gc.collect()
+
+    ln_w = head_tensors["gpt_neox.final_layer_norm.weight"].float()
+    ln_b = head_tensors["gpt_neox.final_layer_norm.bias"].float()
+    eo_w = head_tensors["embed_out.weight"].float()       # (vocab, d_hidden)
+    eo_b = head_tensors.get("embed_out.bias")
+    if eo_b is not None:
+        eo_b = eo_b.float()
+    del head_tensors
+    gc.collect()
+
     # Load cached final-layer hidden states
-    h_final = load_cached_layer(cache_dir, final_layer)[0].float()  # (N, d_hidden)
-    print(f"Reconstructing logits from layer_{final_layer} ({h_final.shape[0]} prompts)...")
+    h_final = load_cached_layer(cache_dir, final_layer)[0].float()  # (N, d)
+    n_prompts = h_final.shape[0]
+    vocab_size = eo_w.shape[0]
+    print(f"Reconstructing log-probs from layer_{final_layer} "
+          f"({n_prompts} prompts, V={vocab_size})...")
 
-    # Apply output head
+    # Apply LayerNorm + output projection in batches → log_softmax directly
+    # to avoid ever materialising full (N, V) logits + (N, V) log_probs simultaneously.
+    target_log_probs = torch.empty(n_prompts, vocab_size, dtype=torch.float32)
     with torch.no_grad():
-        ln_f = ln_f.float()
-        embed_out = embed_out.float()
-        target_logits = embed_out(ln_f(h_final))  # (N, vocab_size)
+        for start in range(0, n_prompts, batch_size):
+            end = min(start + batch_size, n_prompts)
+            h = h_final[start:end]                       # (B, d)
+            # Manual LayerNorm
+            h = h - h.mean(dim=-1, keepdim=True)
+            h = h / (h.var(dim=-1, keepdim=True, unbiased=False) + 1e-5).sqrt()
+            h = h * ln_w + ln_b
+            # Linear projection → log_softmax in one go
+            logits = h @ eo_w.T                           # (B, V)
+            if eo_b is not None:
+                logits = logits + eo_b
+            target_log_probs[start:end] = torch.log_softmax(logits, dim=-1)
 
-    # Free model
-    del model, ln_f, embed_out
-    print(f"Target logits: {target_logits.shape}, {target_logits.dtype}")
-    return target_logits
+    del h_final, ln_w, ln_b, eo_w, eo_b
+    gc.collect()
+    print(f"Target log-probs: {target_log_probs.shape}")
+    return target_log_probs
 
 
 # ---------------------------------------------------------------------------
@@ -152,12 +203,10 @@ def train_tuned_lens(
     Returns the trained lens and per-layer reconstruction metrics.
     """
     tl_cfg = config["tuned_lens"]
-    model_dtype = config["model"].get("dtype", "float16")
 
-    # Reconstruct target logits (exact, from cached final layer)
-    target_logits = reconstruct_target_logits(cache_dir, model_name, model_dtype)
-    target_log_probs = torch.log_softmax(target_logits, dim=-1)  # (N, V)
-    n_prompts, vocab_size = target_logits.shape
+    # Reconstruct target log-probs (never materialises full logits + log_probs together)
+    target_log_probs = reconstruct_target_log_probs(cache_dir, model_name)
+    n_prompts, vocab_size = target_log_probs.shape
 
     # Count layers
     first_batch = sorted(

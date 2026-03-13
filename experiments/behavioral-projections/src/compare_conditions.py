@@ -41,7 +41,7 @@ try:
     )
     from .tuned_lens_baseline import (
         evaluate_baseline,
-        reconstruct_target_logits,
+        reconstruct_target_log_probs,
         train_tuned_lens,
     )
 except ImportError:
@@ -58,7 +58,7 @@ except ImportError:
     )
     from tuned_lens_baseline import (
         evaluate_baseline,
-        reconstruct_target_logits,
+        reconstruct_target_log_probs,
         train_tuned_lens,
     )
 
