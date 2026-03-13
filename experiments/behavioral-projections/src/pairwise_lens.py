@@ -34,17 +34,30 @@ import yaml
 from scipy.stats import spearmanr
 from tqdm import tqdm
 
-from .bisimulation_probe import (
-    compute_pairwise_kl_batched,
-    load_cached_layer,
-    load_config,
-    sample_pairs,
-)
-from .tuned_lens_baseline import (
-    TunedLens,
-    pairwise_kl_from_logits,
-    sample_stratified_pairs,
-)
+try:
+    from .bisimulation_probe import (
+        compute_pairwise_kl_batched,
+        load_cached_layer,
+        load_config,
+        sample_pairs,
+    )
+    from .tuned_lens_baseline import (
+        TunedLens,
+        pairwise_kl_from_logits,
+        sample_stratified_pairs,
+    )
+except ImportError:
+    from bisimulation_probe import (
+        compute_pairwise_kl_batched,
+        load_cached_layer,
+        load_config,
+        sample_pairs,
+    )
+    from tuned_lens_baseline import (
+        TunedLens,
+        pairwise_kl_from_logits,
+        sample_stratified_pairs,
+    )
 
 
 # ---------------------------------------------------------------------------

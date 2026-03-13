@@ -34,12 +34,20 @@ from safetensors.torch import load_file
 from scipy.stats import spearmanr
 from tqdm import tqdm
 
-from .bisimulation_probe import (
-    compute_pairwise_kl_batched,
-    load_cached_layer,
-    load_config,
-    sample_pairs,
-)
+try:
+    from .bisimulation_probe import (
+        compute_pairwise_kl_batched,
+        load_cached_layer,
+        load_config,
+        sample_pairs,
+    )
+except ImportError:
+    from bisimulation_probe import (
+        compute_pairwise_kl_batched,
+        load_cached_layer,
+        load_config,
+        sample_pairs,
+    )
 
 
 # ---------------------------------------------------------------------------

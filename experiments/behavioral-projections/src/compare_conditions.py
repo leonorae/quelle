@@ -27,22 +27,40 @@ from typing import Any
 
 import numpy as np
 
-from .bisimulation_probe import (
-    load_cached_layer,
-    load_config,
-    run_condition3,
-    run_rank_sweep,
-    sample_pairs,
-)
-from .pairwise_lens import (
-    evaluate_pairwise_lens,
-    train_pairwise_lens,
-)
-from .tuned_lens_baseline import (
-    evaluate_baseline,
-    reconstruct_target_logits,
-    train_tuned_lens,
-)
+try:
+    from .bisimulation_probe import (
+        load_cached_layer,
+        load_config,
+        run_condition3,
+        run_rank_sweep,
+        sample_pairs,
+    )
+    from .pairwise_lens import (
+        evaluate_pairwise_lens,
+        train_pairwise_lens,
+    )
+    from .tuned_lens_baseline import (
+        evaluate_baseline,
+        reconstruct_target_logits,
+        train_tuned_lens,
+    )
+except ImportError:
+    from bisimulation_probe import (
+        load_cached_layer,
+        load_config,
+        run_condition3,
+        run_rank_sweep,
+        sample_pairs,
+    )
+    from pairwise_lens import (
+        evaluate_pairwise_lens,
+        train_pairwise_lens,
+    )
+    from tuned_lens_baseline import (
+        evaluate_baseline,
+        reconstruct_target_logits,
+        train_tuned_lens,
+    )
 
 
 def load_or_train_condition1(
