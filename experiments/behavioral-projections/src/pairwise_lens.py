@@ -138,15 +138,16 @@ def train_pairwise_lens(
           f"range=[{true_kl.min():.3f}, {true_kl.max():.3f}]")
 
     lens = TunedLens(n_layers, d_hidden, vocab_size)
+    weights_dir = cache_dir / "_pairwise_lens_weights"
+    weights_dir.mkdir(parents=True, exist_ok=True)
     all_metrics: dict[int, dict[str, Any]] = {}
 
     for layer in layers:
         print(f"\n--- Training pairwise lens for layer {layer} ---")
         hidden_states = load_cached_layer(cache_dir, layer)[0].float()  # (N, d)
 
-        optimizer = torch.optim.Adam(
-            lens.lenses[layer].parameters(), lr=lr, weight_decay=wd,
-        )
+        linear = lens.ensure_layer(layer)
+        optimizer = torch.optim.Adam(linear.parameters(), lr=lr, weight_decay=wd)
 
         n_pairs = len(train_pairs)
         n_batches = math.ceil(n_pairs / batch_size)
@@ -195,6 +196,12 @@ def train_pairwise_lens(
             "epochs_trained": epoch + 1,
         }
         print(f"  Layer {layer}: best MSE = {best_loss:.4f}")
+
+        # Persist layer weights and free memory
+        torch.save(linear.state_dict(), weights_dir / f"layer_{layer}.pt")
+        lens.drop_layer(layer)
+        del hidden_states, optimizer
+        torch.cuda.empty_cache() if torch.cuda.is_available() else None
 
     return lens, all_metrics
 
@@ -259,14 +266,25 @@ def evaluate_pairwise_lens(
           f"(KL range: {true_kl_np.min():.3f} – {true_kl_np.max():.3f})")
 
     results = []
+    weights_dir = cache_dir / "_pairwise_lens_weights"
+
     for layer in tqdm(layers, desc="Evaluating pairwise lens"):
         hidden_states = load_cached_layer(cache_dir, layer)[0].float()
+
+        # Load layer weights on demand
+        layer_weights = weights_dir / f"layer_{layer}.pt"
+        if layer_weights.exists() and str(layer) not in lens.lenses:
+            linear = lens.ensure_layer(layer)
+            linear.load_state_dict(torch.load(layer_weights, weights_only=True))
 
         with torch.no_grad():
             lens_logits = lens(hidden_states, layer)
 
         lens_kl = pairwise_kl_from_logits(lens_logits, eval_pairs)
         lens_kl_np = np.clip(np.nan_to_num(lens_kl.numpy(), nan=0.0, posinf=1e6), 0, None)
+
+        del hidden_states, lens_logits
+        lens.drop_layer(layer)
 
         ss_res = np.sum((true_kl_np - lens_kl_np) ** 2)
         ss_tot = np.sum((true_kl_np - true_kl_np.mean()) ** 2)
@@ -310,8 +328,15 @@ def main():
     # Train
     lens, train_metrics = train_pairwise_lens(cache_dir, config)
 
-    # Save weights
-    torch.save(lens.state_dict(), output_dir / "pairwise_lens_weights.pt")
+    # Consolidate per-layer weights into a single file
+    weights_dir = cache_dir / "_pairwise_lens_weights"
+    full_state = {}
+    for wf in sorted(weights_dir.glob("layer_*.pt")):
+        layer_idx = wf.stem.split("_")[1]
+        layer_sd = torch.load(wf, weights_only=True)
+        for k, v in layer_sd.items():
+            full_state[f"lenses.{layer_idx}.{k}"] = v
+    torch.save(full_state, output_dir / "pairwise_lens_weights.pt")
 
     # Evaluate
     results = evaluate_pairwise_lens(cache_dir, lens, config)

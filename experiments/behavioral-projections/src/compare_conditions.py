@@ -92,7 +92,15 @@ def load_or_train_condition1(
     lens, train_metrics = train_tuned_lens(cache_dir, model_name, config)
 
     tl_dir.mkdir(parents=True, exist_ok=True)
-    torch.save(lens.state_dict(), tl_dir / "tuned_lens_weights.pt")
+    # Consolidate per-layer weights saved during training
+    weights_dir = cache_dir / "_lens_weights"
+    full_state = {}
+    for wf in sorted(weights_dir.glob("layer_*.pt")):
+        layer_idx = wf.stem.split("_")[1]
+        layer_sd = torch.load(wf, weights_only=True)
+        for k, v in layer_sd.items():
+            full_state[f"lenses.{layer_idx}.{k}"] = v
+    torch.save(full_state, tl_dir / "tuned_lens_weights.pt")
 
     results = evaluate_baseline(cache_dir, lens, config)
     for r in results:
@@ -119,7 +127,15 @@ def run_condition2(
     c2_dir.mkdir(parents=True, exist_ok=True)
 
     lens, train_metrics = train_pairwise_lens(cache_dir, config)
-    torch.save(lens.state_dict(), c2_dir / "pairwise_lens_weights.pt")
+    # Consolidate per-layer weights saved during training
+    weights_dir = cache_dir / "_pairwise_lens_weights"
+    full_state = {}
+    for wf in sorted(weights_dir.glob("layer_*.pt")):
+        layer_idx = wf.stem.split("_")[1]
+        layer_sd = torch.load(wf, weights_only=True)
+        for k, v in layer_sd.items():
+            full_state[f"lenses.{layer_idx}.{k}"] = v
+    torch.save(full_state, c2_dir / "pairwise_lens_weights.pt")
 
     results = evaluate_pairwise_lens(cache_dir, lens, config)
     for r in results:

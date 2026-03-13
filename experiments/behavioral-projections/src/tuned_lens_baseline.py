@@ -106,17 +106,36 @@ def reconstruct_target_logits(
 # ---------------------------------------------------------------------------
 
 class TunedLens(nn.Module):
-    """Per-layer affine map from hidden state to vocabulary logits."""
+    """Per-layer affine map from hidden state to vocabulary logits.
+
+    Layers are allocated lazily to avoid OOM when vocab_size is large.
+    Call ``ensure_layer(layer)`` before forward if the layer may not exist yet.
+    """
 
     def __init__(self, n_layers: int, d_hidden: int, vocab_size: int):
         super().__init__()
-        self.lenses = nn.ModuleList([
-            nn.Linear(d_hidden, vocab_size) for _ in range(n_layers)
-        ])
+        self.n_layers = n_layers
+        self.d_hidden = d_hidden
+        self.vocab_size = vocab_size
+        # Sparse ModuleDict keyed by str(layer) — only materialised layers live in memory.
+        self.lenses = nn.ModuleDict()
+
+    def ensure_layer(self, layer: int) -> nn.Linear:
+        """Allocate a single layer if it doesn't exist yet. Return the Linear."""
+        key = str(layer)
+        if key not in self.lenses:
+            self.lenses[key] = nn.Linear(self.d_hidden, self.vocab_size)
+        return self.lenses[key]
+
+    def drop_layer(self, layer: int) -> None:
+        """Free a layer's parameters to reclaim memory."""
+        key = str(layer)
+        if key in self.lenses:
+            del self.lenses[key]
 
     def forward(self, hidden_state: torch.Tensor, layer: int) -> torch.Tensor:
         """(batch, d_hidden) → (batch, vocab_size)"""
-        return self.lenses[layer](hidden_state)
+        return self.lenses[str(layer)](hidden_state)
 
 
 # ---------------------------------------------------------------------------
@@ -159,15 +178,20 @@ def train_tuned_lens(
     epochs = tl_cfg.get("epochs", 30)
     batch_size = tl_cfg.get("batch_size", 64)
 
+    # Train + save one layer at a time to stay within memory.
+    # Layer weights are saved to disk; the returned lens is empty and can be
+    # reloaded selectively during evaluation.
+    weights_dir = cache_dir / "_lens_weights"
+    weights_dir.mkdir(parents=True, exist_ok=True)
+
     all_metrics = {}
 
     for layer in layers:
         print(f"\n--- Training lens for layer {layer} ---")
         hidden_states = load_cached_layer(cache_dir, layer)[0].float()  # (N, d)
 
-        optimizer = torch.optim.Adam(
-            lens.lenses[layer].parameters(), lr=lr, weight_decay=wd,
-        )
+        linear = lens.ensure_layer(layer)
+        optimizer = torch.optim.Adam(linear.parameters(), lr=lr, weight_decay=wd)
 
         n_batches = math.ceil(n_prompts / batch_size)
         best_loss = float("inf")
@@ -204,6 +228,12 @@ def train_tuned_lens(
             "epochs_trained": epochs,
         }
         print(f"  Layer {layer}: best KL = {best_loss:.4f}")
+
+        # Persist this layer's weights and free memory before next layer
+        torch.save(linear.state_dict(), weights_dir / f"layer_{layer}.pt")
+        lens.drop_layer(layer)
+        del hidden_states, optimizer
+        torch.cuda.empty_cache() if torch.cuda.is_available() else None
 
     return lens, all_metrics
 
@@ -346,15 +376,26 @@ def evaluate_baseline(
           f"median: {np.median(true_kl_np):.3f})")
 
     results = []
+    weights_dir = cache_dir / "_lens_weights"
 
     for layer in tqdm(layers, desc="Evaluating layers"):
         hidden_states = load_cached_layer(cache_dir, layer)[0].float()
+
+        # Load this layer's weights on demand
+        layer_weights = weights_dir / f"layer_{layer}.pt"
+        if layer_weights.exists() and str(layer) not in lens.lenses:
+            linear = lens.ensure_layer(layer)
+            linear.load_state_dict(torch.load(layer_weights, weights_only=True))
 
         with torch.no_grad():
             lens_logits = lens(hidden_states, layer)  # (N, V)
 
         lens_kl = pairwise_kl_from_logits(lens_logits, eval_pairs)
         lens_kl_np = lens_kl.numpy()
+
+        # Free layer memory before next iteration
+        del hidden_states, lens_logits
+        lens.drop_layer(layer)
 
         # Clamp negative/nan KL values (numerical edge cases)
         lens_kl_np = np.clip(lens_kl_np, 0, None)
@@ -406,8 +447,15 @@ def main():
     # Train
     lens, train_metrics = train_tuned_lens(cache_dir, model_name, config)
 
-    # Save lens weights
-    torch.save(lens.state_dict(), output_dir / "tuned_lens_weights.pt")
+    # Consolidate per-layer weights into a single file
+    weights_dir = cache_dir / "_lens_weights"
+    full_state = {}
+    for wf in sorted(weights_dir.glob("layer_*.pt")):
+        layer_idx = wf.stem.split("_")[1]
+        layer_sd = torch.load(wf, weights_only=True)
+        for k, v in layer_sd.items():
+            full_state[f"lenses.{layer_idx}.{k}"] = v
+    torch.save(full_state, output_dir / "tuned_lens_weights.pt")
 
     # Evaluate
     results = evaluate_baseline(cache_dir, lens, config)
