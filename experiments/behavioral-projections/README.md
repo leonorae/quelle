@@ -41,6 +41,7 @@ saturates in few iterations, that geometry is concentrated.
 | 0 | Activation caching | — | validated (bootstrap) |
 | 0.5 | Tuned Lens baseline | Phase 0 cached | complete (bootstrap) |
 | 0.5b | Pairwise Tuned Lens | Phase 0 cached | implemented |
+| 0.5c | Lens delta decomposition | Phase 0.5 lens weights exist | implemented |
 | 1 | Bisimulation probe | Phase 0 cached for Pythia-410m | implemented |
 | 1.5 | Three-condition comparison | Phases 0.5, 0.5b, 1 | implemented |
 | 2 | Iterative peeling | Phase 1 R² measured | stub |
