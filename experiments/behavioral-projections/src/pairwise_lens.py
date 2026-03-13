@@ -155,7 +155,8 @@ def train_pairwise_lens(
         patience = pl_cfg.get("patience", 10)
         no_improve = 0
 
-        for epoch in range(epochs):
+        pbar = tqdm(range(epochs), desc=f"  Layer {layer}", leave=False)
+        for epoch in pbar:
             perm = torch.randperm(n_pairs)
             epoch_loss = 0.0
 
@@ -186,8 +187,10 @@ def train_pairwise_lens(
                 no_improve = 0
             else:
                 no_improve += 1
+            pbar.set_postfix(mse=f"{avg_loss:.4f}", best=f"{best_loss:.4f}")
 
             if no_improve >= patience:
+                pbar.close()
                 print(f"  Early stop at epoch {epoch+1}")
                 break
 

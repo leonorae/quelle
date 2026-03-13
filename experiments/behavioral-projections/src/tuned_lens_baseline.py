@@ -196,7 +196,8 @@ def train_tuned_lens(
         n_batches = math.ceil(n_prompts / batch_size)
         best_loss = float("inf")
 
-        for epoch in range(epochs):
+        pbar = tqdm(range(epochs), desc=f"  Layer {layer}", leave=False)
+        for epoch in pbar:
             # Shuffle
             perm = torch.randperm(n_prompts)
             epoch_loss = 0.0
@@ -222,6 +223,7 @@ def train_tuned_lens(
             avg_loss = epoch_loss / n_batches
             if avg_loss < best_loss:
                 best_loss = avg_loss
+            pbar.set_postfix(kl=f"{avg_loss:.4f}", best=f"{best_loss:.4f}")
 
         all_metrics[layer] = {
             "reconstruction_kl": best_loss,
