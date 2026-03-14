@@ -1,0 +1,27 @@
+# Colab configuration for VVVVVV experiment
+# Used by tools/training/colab_train.ipynb
+
+slug: VVVVVV
+description: "Multi-Timescale Value Embedding — Phase 0 diagnostics"
+
+# Dependency management: "nanochat" uses uv in nanochat/, "pip" uses pip install
+dep_mode: nanochat
+
+# Scripts relative to repo root
+setup_script: experiments/VVVVVV/src/setup.sh
+train_script: experiments/VVVVVV/src/train_d12.sh
+post_script: experiments/VVVVVV/src/run_phase0.sh  # optional, runs after training
+
+# nanochat-specific settings
+model_tag: d12
+n_shards: 30
+n_iterations: 6000
+
+# Drive sync
+artifact_subdir: VVVVVV  # subdirectory under DRIVE_ROOT/quelle_artifacts/
+sync_interval_min: 5
+
+# Extra outputs to sync (beyond the main artifact dir)
+extra_sync:
+  - src: experiments/VVVVVV/outputs
+    dst: phase0_outputs

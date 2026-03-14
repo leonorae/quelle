@@ -1,0 +1,20 @@
+# Colab configuration for variable-bitrate-reasoning experiment
+# Used by tools/training/colab_train.ipynb
+
+slug: variable-bitrate-reasoning
+description: "Differentiable compression with geometric concentration"
+
+# Dependency management: "pip" installs from requirements
+dep_mode: pip
+pip_packages:
+  - torch
+  - numpy
+  - pyyaml
+
+# Scripts relative to repo root
+train_script: experiments/variable-bitrate-reasoning/src/train_colab.sh
+
+# Drive sync
+artifact_subdir: variable-bitrate-reasoning
+artifact_source: experiments/variable-bitrate-reasoning/outputs
+sync_interval_min: 5
