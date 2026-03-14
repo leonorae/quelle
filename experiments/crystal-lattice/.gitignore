@@ -2,4 +2,4 @@ outputs/
 data/
 *.pth
 *.pt
-crystal-lattice/src/__pycache__/
+__pycache__/
