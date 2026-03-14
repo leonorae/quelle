@@ -1,0 +1,22 @@
+# Colab configuration for crystal-lattice experiment
+# Used by tools/training/colab_train.ipynb
+
+slug: crystal-lattice
+description: "Curiosity-driven resonator — VSA + CLN molecular reasoning"
+
+# Dependency management
+dep_mode: pip
+pip_packages:
+  - torch
+  - numpy
+  - pyyaml
+  - torchhd
+  - rdkit-pypi
+
+# Scripts relative to repo root
+train_script: experiments/crystal-lattice/src/train_colab.sh
+
+# Drive sync
+artifact_subdir: crystal-lattice
+artifact_source: experiments/crystal-lattice/outputs
+sync_interval_min: 5

@@ -1,0 +1,51 @@
+# Crystal Lattice: default configuration
+# Usage: values here match CLI defaults in curiosity_loop.py
+
+# --- Architecture ---
+architecture:
+  vsa_dim: 10000          # HRR hypervector dimensionality
+  proj_dim: 256           # VSA -> CLN projection dimensionality
+  cln_nhead: 8            # Transformer attention heads
+  cln_ff_dim: 512         # Transformer feed-forward hidden dim
+  cln_layers: 2           # Transformer layers (weight-tied across iterations)
+  cln_iters: 8            # Number of CLN loop iterations (5-10 range)
+  lora_rank: 8            # Depth-wise LoRA rank per iteration
+
+# --- Data generation ---
+data:
+  num_alkanes: 100        # Phase 1 training conformers
+  min_carbons: 3          # Shortest linear chain
+  max_carbons: 12         # Longest linear chain
+  num_conformers: 10      # RDKit conformers per molecule
+  energy_filter_sigma: 2.0  # Discard energy > mean + sigma*std
+
+# --- Training ---
+training:
+  lr: 0.001
+  batch_size: 16
+  phase1_epochs: 50       # Seed crystallization epochs
+  phase2_rounds: 3        # Number of curiosity rounds
+  phase2_finetune_epochs: 20  # Fine-tuning epochs per curiosity round
+  ring_loss_weight: 1.0   # Weight for ring classification loss
+  grad_clip_norm: 5.0     # Gradient clipping max norm
+
+# --- Curiosity loop ---
+curiosity:
+  num_mutations: 50       # LLM-generated candidates per round
+  top_k: 10               # Top candidates selected by diversity-entropy
+  ollama_model: "llama3.2:1b"
+  ollama_host: "http://localhost:11434"
+
+# --- Phase 3 evaluation ---
+evaluation:
+  simple_ring_count: 30     # Simple macrocycle test conformers
+  substituted_ring_count: 20  # Substituted macrocycle test conformers
+  min_ring_size: 12
+  max_ring_size: 20
+
+# --- I/O ---
+io:
+  output_dir: "outputs"
+  seed: 42
+  device: "auto"            # "auto", "cpu", "cuda", "cuda:0", etc.
+  log_level: "INFO"
