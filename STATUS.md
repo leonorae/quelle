@@ -11,15 +11,19 @@
 
 | Experiment | Status | Owner | Next action |
 |---|---|---|---|
-| `variable-bitrate-reasoning` | ready to run | — | Launch on Colab (train_colab.sh) |
 | `VVVVVV` | ready to run | — | Launch on Colab (Phase 0: setup → train → probes) |
-| `crystal-lattice` | code complete | — | Launch on Colab (curiosity_loop.py) |
+| `crystal-lattice` | **blocked** | — | Fix Wormhole operator (see vsa-encoding-fidelity results) |
+| `probe-signal-comparison` | planned | — | Needs VVVVVV d12 checkpoint |
+| `vsa-encoding-fidelity` | **done** | — | Wormhole operator ineffective; see RESULTS.md |
+| `curiosity-vs-random` | planned | — | Needs crystal-lattice to run first |
+| `cln-iteration-dynamics` | planned | — | Needs crystal-lattice training logs |
 
 ## Archived
 
 | Experiment | Reason |
 |---|---|
-| `geometric-self-awareness-reasoning` | Too simplistic; archived 2026-03-14 |
+| `variable-bitrate-reasoning` | Concentration metric better as diagnostic than control signal |
+| `geometric-self-awareness-reasoning` | Too simplistic |
 
 ## Backlog
 
@@ -29,29 +33,36 @@
 | `manifold-capability-probing` | Low |
 | `multi-task-vbr` | Low |
 
+## Key Finding: Wormhole Operator Broken
+
+The VSA encoding fidelity test (2026-03-14) found that crystal-lattice's
+Wormhole operator is ineffective:
+
+- Ring vs chain classification: **57.5%** (near chance)
+- Closure tag cosine similarity delta: **0.0003** (negligible)
+- Chain-ring HV cosine similarity: **>0.92** (nearly identical)
+
+**Root cause**: bundling (addition) of a single closure-tag HV into a
+molecule HV with N atom-position terms dilutes the signal to ~1/(N+1).
+
+**Fix options**: scale closure term by sqrt(N), use separate topology
+channel, or multiplicative binding instead of bundling.
+
+Crystal-lattice training should NOT proceed until this is fixed.
+
 ## Parallel Execution Setup
 
-All three active experiments can run simultaneously on separate Colab runtimes.
 The generic Colab notebook (`tools/training/colab_train.ipynb`) reads each
-experiment's `colab.yaml` — just change `EXPERIMENT` in the config cell:
+experiment's `colab.yaml`. Set `EXPERIMENT` in the config cell.
 
-| Colab instance | Set `EXPERIMENT` to | GPU needed | Est. time |
-|---|---|---|---|
-| 1 | `VVVVVV` | T4+ | ~4-6h train + 30min probes |
-| 2 | `variable-bitrate-reasoning` | Any GPU | ~2-4h |
-| 3 | `crystal-lattice` | Any GPU | ~1-2h |
+## Shared Tools
 
-After each run, results sync to Google Drive under `quelle_artifacts/<slug>/`.
-Update `RESULTS.md` per the chat-bridge protocol in CLAUDE.md.
-
-## Repo Health
-
-- `wiki/findings/`: empty (no completed runs yet)
-- `visualize.py`: still stub in `variable-bitrate-reasoning`
-- Dashboard: not yet built
+- `tools/analysis/geometry/` — concentration, velocity, effective dimensionality
+  diagnostics. Extracted from VBR for cross-experiment use.
 
 ## Open Questions
 
 - VVVVVV Phase 0: Do spike channels in nanochat (relu²) fall in first 32 indices? (→ Q0.1)
 - VVVVVV Phase 0: Is BOS residual document-varying or near-constant? (→ Q0.2)
-- These gate the learned projection gate and BOS-conditioned table extensions respectively.
+- Crystal-lattice: Best fix for Wormhole operator dilution?
+- Probe-signal-comparison: Do geometric signals add information beyond tuned lens?
