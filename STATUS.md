@@ -3,7 +3,7 @@
 > Quick briefing for agents and humans. Read this instead of traversing
 > the full wiki to understand what is happening right now.
 >
-> **Updated**: 2026-03-09
+> **Updated**: 2026-03-14
 
 ---
 
@@ -11,8 +11,15 @@
 
 | Experiment | Status | Owner | Next action |
 |---|---|---|---|
-| `variable-bitrate-reasoning` | running | claude-sonnet-4-6 | Run full training, fill RESULTS.md |
-| `VVVVVV` | planning | claude-sonnet-4-6 | Run Phase 0 training at d12, fill RESULTS.md Q0.1–Q0.3 |
+| `variable-bitrate-reasoning` | ready to run | — | Launch on Colab (train_colab.sh) |
+| `VVVVVV` | ready to run | — | Launch on Colab (Phase 0: setup → train → probes) |
+| `crystal-lattice` | code complete | — | Launch on Colab (curiosity_loop.py) |
+
+## Archived
+
+| Experiment | Reason |
+|---|---|
+| `geometric-self-awareness-reasoning` | Too simplistic; archived 2026-03-14 |
 
 ## Backlog
 
@@ -21,6 +28,21 @@
 | `gumbel-compression-ablation` | Medium |
 | `manifold-capability-probing` | Low |
 | `multi-task-vbr` | Low |
+
+## Parallel Execution Setup
+
+All three active experiments can run simultaneously on separate Colab runtimes.
+The generic Colab notebook (`tools/training/colab_train.ipynb`) reads each
+experiment's `colab.yaml` — just change `EXPERIMENT` in the config cell:
+
+| Colab instance | Set `EXPERIMENT` to | GPU needed | Est. time |
+|---|---|---|---|
+| 1 | `VVVVVV` | T4+ | ~4-6h train + 30min probes |
+| 2 | `variable-bitrate-reasoning` | Any GPU | ~2-4h |
+| 3 | `crystal-lattice` | Any GPU | ~1-2h |
+
+After each run, results sync to Google Drive under `quelle_artifacts/<slug>/`.
+Update `RESULTS.md` per the chat-bridge protocol in CLAUDE.md.
 
 ## Repo Health
 

@@ -36,6 +36,7 @@ quelle/
 │   ├── RESULTS.md            ← post-run findings
 │   ├── DECISIONS.md          ← implementation decisions for this experiment
 │   ├── src/
+│   │   └── summarize.py      ← reduces outputs/ to RESULTS.md
 │   ├── configs/
 │   ├── data/                 ← gitignore large files
 │   ├── outputs/              ← gitignore large files
@@ -118,9 +119,27 @@ Keep experiment changes and wiki updates in separate commits.
 **Start:** Read `STATUS.md`. Check `experiments/<slug>/README.md` for the active
 experiment. Consult `wiki/` only if you need deeper background.
 
+**During:** Commit a WIP checkpoint every ~30 minutes of active work, or after any
+significant result. Use: `chore(<slug>): wip — <one-line description>`. These will
+be squashed before merge. The goal is crash resilience, not clean history.
+Agent notes are append-only during session. Write observations to
+`wiki/agents/<id>.md` as they happen, not only at session end. If the session drops,
+the notes survive.
+
 **End:** Update experiment `README.md` status. Update `STATUS.md` if anything
 changed. Write non-obvious findings to `wiki/findings/`. Append a short entry to
 `wiki/agents/<your-id>.md` (rotate to archive when file exceeds ~80 lines). Commit.
+
+**Summarization:** Before session end (or when results are available), run
+`src/summarize.py` (or manually update `RESULTS.md`) to produce a
+context-window-sized digest of current results. Include:
+- Key metrics (table format)
+- Unexpected observations (free text, tagged `[observed]`)
+- What changed from prior expectations
+- Open questions raised by the data
+
+This is the primary handoff artifact to chat-based analysis. Raw outputs stay in
+`outputs/`; `RESULTS.md` is what gets pasted into conversations.
 
 **Questions:** `<!-- QUESTION: ... -->` in the relevant file, or `## Open Questions`
 in `wiki/agents/<your-id>.md`.
@@ -145,3 +164,19 @@ Keep those frontmatter blocks intact and parseable.
 
 Wishlist: StumpWM/Emacs integration, chat logging, PDF annotation, question↔finding
 linkage, context-aware agentic experiment management.
+
+---
+
+## Bridging code sessions and chat analysis
+
+When results need discussion in a chat interface (where raw data can't be uploaded),
+the handoff works through files:
+
+1. Code agent writes `RESULTS.md` with structured summary
+2. Code agent notes unexpected observations in agent notes
+3. Human pastes `RESULTS.md` (and optionally agent notes) into chat
+4. Chat agent analyzes, proposes interpretations, flags cross-thread connections
+5. Human carries conclusions back to code session or updates `wiki/findings/`
+
+`RESULTS.md` should be written assuming the reader has **NO access to raw data or
+`outputs/`**. Everything needed for interpretation goes in the summary.
