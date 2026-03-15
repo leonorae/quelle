@@ -94,3 +94,22 @@ which steps are mandatory vs aspirational. Now that's explicit.
 work (→ enforce WIP checkpoints), (b) a third agent type joins and handoffs
 degrade (→ consider structured handoff format), or (c) the repo grows past ~10
 active experiments (→ consider richer indexing).
+
+---
+
+## 2026-03-15 — Drop roadmap and findings index; simplify wiki overhead
+
+**Decision**: Removed `wiki/humans/roadmap.md` and `wiki/concepts/uknown-neurons.org`.
+Replaced the manual findings index table in `wiki/README.md` with a directory
+pointer. No manually maintained index for findings.
+
+**Rationale**: `STATUS.md` is the single source of truth for what's active, planned,
+and archived. A separate roadmap duplicates that and drifts. The findings directory
+has good YAML frontmatter and is small enough to browse directly; a manual table
+that goes stale is worse than no table. `uknown-neurons.org` was a scratch stub
+superseded by crystal-lattice decomposition.
+
+**Tracking model going forward**: High-level direction and priorities live in
+`STATUS.md` (root). Experiment subtasks live in each experiment's `README.md` and
+`DECISIONS.md`. Wiki holds durable knowledge (concepts, findings, decisions), not
+plans or todos.

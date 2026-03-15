@@ -3,8 +3,8 @@
 The wiki is the living knowledge base for this monorepo. It accumulates
 concepts, findings, and working notes across all experiments and sessions.
 
-> **Agents**: Read this index at the start of every session. Update it when you
-> add new pages.
+> **Agents**: Read `STATUS.md` at session start. Consult wiki only when you
+> need deeper background on a concept or finding.
 
 ---
 
@@ -16,7 +16,7 @@ wiki/
 ├── concepts/          ← background theory and shared definitions
 ├── findings/          ← cross-experiment synthesis and key results
 ├── agents/            ← per-agent working notes and session logs
-└── humans/            ← human-authored decisions, roadmap, open questions
+└── humans/            ← human-authored decisions, open questions
 ```
 
 ---
@@ -31,26 +31,26 @@ wiki/
 | [gumbel-softmax.md](concepts/gumbel-softmax.md) | Differentiable discrete sampling — how and why |
 | [dsd-future-prediction.md](concepts/dsd-future-prediction.md) | Dead-Stop-Detach (stop-gradient) future state prediction objective |
 | [related-work.md](concepts/related-work.md) | Summaries of six papers directly informing `variable-bitrate-reasoning` |
+| [factorization-taxonomy.md](concepts/factorization-taxonomy.md) | General factorization moves, output-side distinction, QKV scale asymmetry |
 
 ## Findings
 
-| Page | Experiments | Summary |
-|------|-------------|---------|
-| *(none yet)* | | |
+Cross-experiment synthesis lives in `findings/`. Browse the directory directly;
+no manual index is maintained here.
 
 ## Agent Notes
 
 | Agent | Page |
 |-------|------|
 | claude-sonnet-4-6 | [claude-sonnet-4-6.md](agents/claude-sonnet-4-6.md) |
+| claude-opus-4-6 | [claude-opus-4-6.md](agents/claude-opus-4-6.md) |
 
 ## Human Notes
 
 | Topic | Page |
 |-------|------|
-| [roadmap.md](humans/roadmap.md) | Project roadmap and planned experiments |
 | [decisions.md](humans/decisions.md) | Design decisions and rationale log |
-| [latent-research-context.md](humans/latent-research-context.md) | Research positioning and feasibility assessment for `variable-bitrate-reasoning` |
+| [latent-research-context.md](humans/latent-research-context.md) | Research positioning and feasibility assessment |
 
 ---
 
