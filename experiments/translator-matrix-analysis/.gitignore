@@ -1,0 +1,9 @@
+# Downloaded matrices (large pickle files)
+data/matrices/
+
+# Analysis outputs (regenerable)
+outputs/
+
+# Python
+__pycache__/
+*.pyc

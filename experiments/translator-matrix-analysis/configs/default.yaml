@@ -1,0 +1,27 @@
+# Translator Matrix Analysis — Default Configuration
+
+model:
+  name: "gpt2-medium"
+  n_layer_indices: 25   # 0 = post-embedding through 24 = final output
+  d_model: 1024
+
+data:
+  repo_id: "sashay/linear-shortcut"
+  subdirectory: "gpt2-medium/wikipedia"
+  cache_dir: "data/matrices"
+
+svd:
+  output_dir: "outputs/svd"
+
+frame_deltas:
+  output_dir: "outputs/frame_deltas"
+  top_k_directions: 10    # number of principal frame-change directions to track
+
+atlas:
+  output_dir: "outputs/atlas"
+  clustering_methods: ["ward", "average"]
+  n_clusters_range: [2, 3, 4, 5]
+
+composition:
+  n_triples: 50           # for Phase 0 quick validation
+  # Phase 3c uses ALL valid triples (no sampling)
