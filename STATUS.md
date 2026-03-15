@@ -3,7 +3,7 @@
 > Quick briefing for agents and humans. Read this instead of traversing
 > the full wiki to understand what is happening right now.
 >
-> **Updated**: 2026-03-15 (VVVVVV reframe)
+> **Updated**: 2026-03-15 (VVVVVV reframe; cln-iteration-dynamics lit review)
 
 ---
 
@@ -15,7 +15,7 @@
 | `behavioral-projections` | active | — | Phase 0.6 (ve table analysis) + frame_ratio curve |
 | `vsa-encoding-fidelity` | needs fix | — | Implement multiplicative binding, re-run probe |
 | `curiosity-vs-random` | needs lit review | — | Survey active learning literature for low-budget regime |
-| `cln-iteration-dynamics` | needs lit review | — | Survey looped transformer ablations |
+| `cln-iteration-dynamics` | lit review complete | — | Design experiment (Option A: small looped transformer on arithmetic/geometric task) |
 | `probe-signal-comparison` | planned | — | Needs VVVVVV d12 checkpoint |
 
 ## Decomposed
@@ -113,4 +113,4 @@ experiment's `colab.yaml`. Set `EXPERIMENT` in the config cell.
 - **Ve table**: Do ve rows cluster by syntactic function? Does ve cosine correlate with bisimulation distance? What's the effective rank?
 - VSA: Does multiplicative binding fix the topology encoding problem?
 - Active learning: Does the literature already resolve curiosity-vs-random at small budgets?
-- Iterative refinement: Do looped-transformer ablations already characterize iteration dynamics?
+- Iterative refinement: Lit review complete (2026-03-15). Gap is small-model structured-prediction regime. Next: design Option A experiment.

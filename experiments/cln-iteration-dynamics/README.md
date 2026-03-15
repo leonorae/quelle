@@ -1,5 +1,5 @@
 ---
-status: needs-lit-review
+status: lit-review-complete-pending-experiment-design
 owner: null
 dependencies: []
 ---
@@ -21,25 +21,28 @@ The question generalizes beyond molecular tasks: iterative/recurrent refinement 
 a design pattern appearing across multiple architectures (looped transformers,
 Huginn, LoopFormer, SpiralFormer — see literature survey).
 
-## Before Building Anything: Literature Review Needed
+## Literature Review Status
 
-Recent work on looped/recursive transformers is directly relevant:
+**Completed 2026-03-15**. Full review at
+`wiki/findings/iterative-refinement-dynamics-review.md`.
 
-1. **"Reasoning with Latent Thoughts" (Saunshi et al., ICLR 2025)**: k-layer
-   transformer looped L times nearly matches kL-layer model on reasoning tasks.
-   Does this transfer to structured prediction (regression, geometric tasks)?
+Summary of findings:
 
-2. **Ouro, Huginn, LoopFormer, SpiralFormer (2025-2026)**: Scaled looped
-   architectures. What do their ablations say about iteration dynamics? Do later
-   iterations contribute meaningfully or is most work done early?
+- The qualitative dynamics curve is well-established: **log-linear improvement
+  in early iterations, then plateau**. Confirmed across looped transformers
+  (Saunshi et al., Huginn), protein recycling (AlphaFold2), and diffusion models.
+- Adaptive halting saves 20–30% FLOPs in practice (Ouro, CALM).
+- Two main failure modes: hidden state collapse; model learning to ignore
+  recurrent state. Both known and fixable.
+- **The gap**: no published work on small-model looped transformers on structured
+  geometric/regression tasks. All large-scale evidence is on language/math tasks
+  at ≥100M parameters.
+- Recommendation: proceed with a narrow experiment (Option A first), framed as
+  validating the known dynamics profile in the small-model structured-prediction
+  regime.
 
-3. **Adaptive halting / early exit**: Entropy-based stopping claims 20-30% FLOPs
-   savings. Does this imply later iterations are often redundant?
-
-4. **Key question**: Is there already clear evidence about the iteration dynamics
-   profile (relaxation curve, useful iteration count, diminishing returns)?
-
-If the literature provides a clear answer, document it and close this experiment.
+The literature does *not* provide a clear enough answer to close this experiment.
+It provides strong priors that narrow the experimental question considerably.
 
 ## If We Run an Experiment
 
