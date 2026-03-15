@@ -3,7 +3,7 @@
 > Quick briefing for agents and humans. Read this instead of traversing
 > the full wiki to understand what is happening right now.
 >
-> **Updated**: 2026-03-12 (three-condition comparison scaffolded)
+> **Updated**: 2026-03-15 (three-condition comparison complete on bootstrap)
 
 ---
 
@@ -11,7 +11,7 @@
 
 | Experiment | Status | Owner | Next action |
 |---|---|---|---|
-| `behavioral-projections` | three-condition-implemented | claude-opus-4-6 | Run `compare_conditions.py` on bootstrap cache, then rerun on 7k corpus |
+| `behavioral-projections` | bootstrap-results | claude-opus-4-6 | Diagnose C3 collapses (rank sweep at L9,11,16,17); rerun on 7k corpus |
 | `variable-bitrate-reasoning` | running | claude-sonnet-4-6 | Run full training, fill RESULTS.md |
 | `VVVVVV` | planning | claude-sonnet-4-6 | Run Phase 0 training at d12, fill RESULTS.md Q0.1–Q0.3 |
 
@@ -25,7 +25,7 @@
 
 ## Repo Health
 
-- `wiki/findings/`: empty (no completed runs yet)
+- `wiki/findings/`: empty (behavioral-projections bootstrap results in RESULTS.md, awaiting full-corpus confirmation before wiki writeup)
 - `visualize.py`: still stub in `variable-bitrate-reasoning`
 - Dashboard: not yet built
 

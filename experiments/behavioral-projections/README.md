@@ -29,9 +29,11 @@ saturates in few iterations, that geometry is concentrated.
 
 **Phase 0** (activation caching): pipeline validated on 221-prompt bootstrap set (Pythia-410m, CPU)
 **Phase 0.5** (tuned lens baseline): complete on bootstrap — ρ≈0.88, R²≈0.5–0.6 at middle layers
-**Phase 0.5b** (pairwise lens): implemented, ready to run
+**Phase 0.5b** (pairwise lens): complete on bootstrap — R²≈0.93 at late layers
+**Phase 0.5c** (lens delta): implemented — `src/lens_delta_analysis.py`
 **Phase 1** (bisimulation probe): Ridge validated; learned projection + rank sweep implemented
-**Phase 1.5** (three-condition comparison): implemented — `src/compare_conditions.py`
+**Phase 1.5** (three-condition comparison): **complete on bootstrap** — see RESULTS.md. C2>>C1 everywhere; C3 best early, C2 best mid-late; C3 unstable at layers 9,11,16,17
+**Phase 2 gate**: MET (R²>0.3 at middle layers for C2 and C3). Recommend C2 for iterative peeling.
 **Phases 2–4**: stubbed
 
 ## Phases
@@ -43,8 +45,8 @@ saturates in few iterations, that geometry is concentrated.
 | 0.5b | Pairwise Tuned Lens | Phase 0 cached | implemented |
 | 0.5c | Lens delta decomposition | Phase 0.5 lens weights exist | implemented |
 | 1 | Bisimulation probe | Phase 0 cached for Pythia-410m | implemented |
-| 1.5 | Three-condition comparison | Phases 0.5, 0.5b, 1 | implemented |
-| 2 | Iterative peeling | Phase 1 R² measured | stub |
+| 1.5 | Three-condition comparison | Phases 0.5, 0.5b, 1 | complete (bootstrap) |
+| 2 | Iterative peeling | Phase 1 R² measured | stub (gate met) |
 | 3 | Contrastive prompt discrimination | Phase 0 cached | stub |
 | 4 | Perturbation-sensitivity map | Phase 0 cached | stub |
 | 5 | Intersection analysis | ≥2 projections trained | stub (in analysis.py) |
