@@ -3,7 +3,7 @@
 > Quick briefing for agents and humans. Read this instead of traversing
 > the full wiki to understand what is happening right now.
 >
-> **Updated**: 2026-03-14
+> **Updated**: 2026-03-15
 
 ---
 
@@ -12,11 +12,17 @@
 | Experiment | Status | Owner | Next action |
 |---|---|---|---|
 | `VVVVVV` | ready to run | — | Launch on Colab (Phase 0: setup → train → probes) |
-| `crystal-lattice` | **blocked** | — | Fix Wormhole operator (see vsa-encoding-fidelity results) |
+| `behavioral-projections` | active | — | Complete tuned lens training, frame_ratio curve |
+| `vsa-encoding-fidelity` | needs fix | — | Implement multiplicative binding, re-run probe |
+| `curiosity-vs-random` | needs lit review | — | Survey active learning literature for low-budget regime |
+| `cln-iteration-dynamics` | needs lit review | — | Survey looped transformer ablations |
 | `probe-signal-comparison` | planned | — | Needs VVVVVV d12 checkpoint |
-| `vsa-encoding-fidelity` | **done** | — | Wormhole operator ineffective; see RESULTS.md |
-| `curiosity-vs-random` | planned | — | Needs crystal-lattice to run first |
-| `cln-iteration-dynamics` | planned | — | Needs crystal-lattice training logs |
+
+## Decomposed
+
+| Experiment | Reason |
+|---|---|
+| `crystal-lattice` | Decoupled into independent threads (2026-03-15). See `wiki/findings/crystal-lattice-decomposition.md` |
 
 ## Archived
 
@@ -33,22 +39,48 @@
 | `manifold-capability-probing` | Low |
 | `multi-task-vbr` | Low |
 
-## Key Finding: Wormhole Operator Broken
+---
 
-The VSA encoding fidelity test (2026-03-14) found that crystal-lattice's
-Wormhole operator is ineffective:
+## Recent Change: Crystal-Lattice Decomposition (2026-03-15)
 
-- Ring vs chain classification: **57.5%** (near chance)
-- Closure tag cosine similarity delta: **0.0003** (negligible)
-- Chain-ring HV cosine similarity: **>0.92** (nearly identical)
+The crystal-lattice experiment stacked four unvalidated ideas in a linear
+dependency chain: VSA encoding → CLN refinement → curiosity selection → LLM
+mutation. The first layer failed validation. Rather than fix-and-rebuild
+linearly, the experiment was decomposed into independent threads:
 
-**Root cause**: bundling (addition) of a single closure-tag HV into a
-molecule HV with N atom-position terms dilutes the signal to ~1/(N+1).
+- **VSA encoding** (`vsa-encoding-fidelity`): Can VSA represent molecular
+  topology? Fix the Wormhole operator and re-test. Standalone.
+- **Iterative refinement** (`cln-iteration-dynamics`): Does looping help?
+  Literature review first — recent looped-transformer papers may already answer
+  this. Test on any representation, not necessarily VSA.
+- **Active learning** (`curiosity-vs-random`): Does curiosity beat random at
+  small budgets? Literature review first. Test with any model, not necessarily
+  the full stack.
+- **LLM molecular mutation**: Deferred. Low priority until other threads validate.
 
-**Fix options**: scale closure term by sqrt(N), use separate topology
-channel, or multiplicative binding instead of bundling.
+Speculative recombination paths noted in
+`wiki/findings/crystal-lattice-decomposition.md`. Each thread succeeds or
+fails on its own terms.
 
-Crystal-lattice training should NOT proceed until this is fixed.
+---
+
+## Dependency Graph (Updated)
+
+```
+VVVVVV Phase 0 (ready to run)
+    └─→ probe-signal-comparison (needs d12 checkpoint)
+
+behavioral-projections (active, independent)
+
+vsa-encoding-fidelity (needs fix, independent)
+curiosity-vs-random (needs lit review, independent)
+cln-iteration-dynamics (needs lit review, independent)
+```
+
+No linear chains. All threads except probe-signal-comparison are independently
+actionable.
+
+---
 
 ## Parallel Execution Setup
 
@@ -64,5 +96,6 @@ experiment's `colab.yaml`. Set `EXPERIMENT` in the config cell.
 
 - VVVVVV Phase 0: Do spike channels in nanochat (relu²) fall in first 32 indices? (→ Q0.1)
 - VVVVVV Phase 0: Is BOS residual document-varying or near-constant? (→ Q0.2)
-- Crystal-lattice: Best fix for Wormhole operator dilution?
-- Probe-signal-comparison: Do geometric signals add information beyond tuned lens?
+- VSA: Does multiplicative binding fix the topology encoding problem?
+- Active learning: Does the literature already resolve curiosity-vs-random at small budgets?
+- Iterative refinement: Do looped-transformer ablations already characterize iteration dynamics?

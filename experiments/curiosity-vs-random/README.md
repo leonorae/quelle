@@ -1,39 +1,59 @@
 ---
-status: planned
+status: needs-lit-review
 owner: null
-dependencies: [crystal-lattice]
+dependencies: []
 ---
 
-# Curiosity vs Random Baseline
+# Curiosity vs Random Selection in Low-Data Regimes
 
-**Hypothesis**: Diversity-entropy active learning selects better training samples
-than random selection, leading to higher Phase 3 accuracy with the same sample
-budget.
+**Question**: Does diversity-entropy active learning meaningfully outperform random
+selection when the sample budget is small (10-50 examples)?
 
 ## Background
 
-Crystal-lattice's core claim is that curiosity-driven selection of "stepping
-stones" achieves 90%+ accuracy on ~50 samples vs 1000+ for random sampling.
-This experiment directly tests whether the selection strategy matters.
+Active learning is well-studied, but results are regime-dependent. The crystal-lattice
+architecture proposed curiosity-driven selection as a core component, but never
+validated it independently. This experiment asks the question on its own terms.
 
-## Method
+## Before Building Anything: Literature Review Needed
 
-Run crystal-lattice Phase 1 + 2 + 3 twice:
+Active learning vs random is extensively studied. Before implementing:
 
-| Condition | Phase 2 selection | Everything else |
-|---|---|---|
-| Curiosity | Diversity-entropy top-k | Identical |
-| Random | Random top-k from valid candidates | Identical |
+1. **Check existing results** for the specific regime: very low budget (10-50 samples),
+   structured/molecular inputs, regression or classification tasks.
+2. **Key question**: Does the literature already show diminishing returns for active
+   learning at very small budgets? (Some results suggest random is competitive when
+   the budget is tiny because the model hasn't learned enough to score candidates
+   meaningfully.)
+3. **If the literature is clear**: Document the finding and close this experiment.
+   No need to re-derive known results.
+4. **If the literature is ambiguous for our regime**: Design a minimal test. Use the
+   simplest model and representation that works — not the full crystal-lattice stack.
 
-Compare Phase 3 metrics: ring classification accuracy, distance MAE.
+## If We Run an Experiment
 
-## Success criteria
+The test should be domain-agnostic or use a well-benchmarked domain:
 
-- Curiosity condition achieves >10% higher accuracy than random on Phase 3
-  macrocycles with same number of training samples
-- If no difference: the curiosity loop is decorative and should be simplified
+- **Model**: Any small regressor/classifier (not necessarily CLN)
+- **Representation**: Any working representation (molecular fingerprints, not
+  necessarily VSA)
+- **Selection strategies**: Random, uncertainty sampling, diversity-entropy (coreset),
+  and ideally one more baseline (e.g., max-entropy)
+- **Metric**: Accuracy/MAE at budget = {10, 25, 50} samples
+- **Repetitions**: Multiple seeds, report variance
 
-## Implementation
+## Success Criteria
 
-Add `--selection-mode random` flag to curiosity_loop.py. Run both conditions
-with same seed for Phase 1 (shared starting point).
+- Clear evidence that one strategy dominates at the relevant budget, OR
+- Clear evidence that the difference is negligible (also a useful result)
+
+## Speculative Combination
+
+If curiosity-driven selection wins convincingly, it could be applied to any
+low-data experiment in this repo (not just molecular tasks). Note in
+`wiki/findings/crystal-lattice-decomposition.md`.
+
+## Origin
+
+Decomposed from `crystal-lattice` (2026-03-15). Previously depended on
+crystal-lattice completing Phases 1-3. Now independent.

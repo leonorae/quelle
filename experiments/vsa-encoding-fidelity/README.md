@@ -1,29 +1,65 @@
 ---
-status: running
+status: needs-fix
 owner: null
-dependencies: [crystal-lattice]
+dependencies: []
 ---
 
 # VSA Encoding Fidelity
 
-**Hypothesis**: HRR encoding with the Wormhole Operator produces hypervectors
-that are linearly separable by topology (ring vs chain) and that the 10kD→256D
-projection preserves this separability.
+**Question**: Can HRR (Holographic Reduced Representations) encode molecular
+topology such that structural properties (ring vs chain, ring size, branching)
+are linearly separable in hypervector space?
 
 ## Background
 
-Crystal-lattice's architecture assumes the VSA encoding provides meaningful
-structural information to the CLN. This experiment validates that assumption
-before investing in full training.
+This experiment validates whether VSA is a viable representation for molecular
+structure. Originally created to validate crystal-lattice's core assumption, it
+now stands alone: the question of whether VSA can represent topology is interesting
+regardless of what downstream model consumes the representation.
 
-## Method
+## Current Result: FAILED (2026-03-14)
 
-1. Generate 200 molecules: 100 linear alkanes, 100 macrocyclic rings
-2. Encode with VSALattice (from crystal-lattice/src/vsa_lattice.py)
-3. Test linear separability (logistic regression) on raw 10kD and projected 256D
-4. Measure Wormhole operator's effect on ring molecule geometry
-5. Compare angle concentration between chains and rings
+See `RESULTS.md` for full details.
 
-## Results
+- Ring vs chain classification: **57.5%** (near chance)
+- Closure tag cosine delta: **0.0003** (negligible)
+- Chain-ring similarity: **>0.92** (nearly identical)
 
-See RESULTS.md (populated by test_vsa_fidelity.py run).
+**Root cause**: Bundling (addition) of a single closure-tag HV into a molecule HV
+with N atom-position terms dilutes the signal to ~1/(N+1).
+
+## Next Step: Fix and Re-run
+
+Three candidate fixes, in order of promise:
+
+1. **Multiplicative binding** (not bundling) for closure — creates a structurally
+   different representation rather than a slightly perturbed additive one. Most
+   principled; changes the algebraic operation, not just the scale.
+
+2. **Separate topology channel** — a second HV encoding only ring closure
+   information, concatenated with the atom-position HV. Clean separation but
+   doubles the representation size.
+
+3. **Scale closure term by sqrt(N)** — simplest fix, keeps the existing approach
+   but amplifies the signal. Least principled; a patch rather than a redesign.
+
+**Success threshold**: Ring vs chain linear probe accuracy >= 85%. If we can't get
+there with any fix, VSA-for-topology is likely not viable and this is a clean
+negative result.
+
+## If VSA Works
+
+Could be combined with iterative refinement (`cln-iteration-dynamics`) to revisit
+the original crystal-lattice architecture. See
+`wiki/findings/crystal-lattice-decomposition.md`.
+
+## Literature Gap
+
+No published work applies VSA/HDC to crystal or molecular topology (confirmed in
+literature survey, 2026-03-08). A positive result here would be novel. A clean
+negative result is also publishable/documentable.
+
+## Code
+
+- `src/test_vsa_fidelity.py` — validation test
+- Encoder: `experiments/crystal-lattice/src/vsa_lattice.py`
