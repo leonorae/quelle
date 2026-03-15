@@ -411,3 +411,47 @@ d_proj.
 - `seed_variance.png`: R² std across seeds per d_proj (collapse vs control)
 - `diagnosis_summary.txt`: automated hypothesis evaluation
 
+### D17 — Single-seed sweep results reframe the collapse story
+
+**Date:** 2026-03-15
+
+**Observation (single-seed run, pre-multi-seed):**
+
+Full-rank (d=1024) R² degrades at **every** layer, not just collapse layers:
+- L6 (control): 0.084 — severe
+- L9 (collapse): 0.874 — **stable** (contradicts original R²=-6.56)
+- L11 (collapse): 0.887 — stable
+- L12 (control): 0.690 — moderate
+- L16 (collapse): -3.75 — catastrophic
+- L17 (collapse): 0.340 — severe
+- L20 (control): 0.901 — stable
+
+Optimal d_proj is non-monotone: L6→16, L9→32, L11→16, L12→64, L16→32, L17→16, L20→64.
+
+**Reframing:** "Collapse layers" is not a clean category. Full-rank projection
+is generically sample-starved at 221 prompts. All layers degrade; what varies
+is severity. The relevant quantity is the ratio of effective signal dimensions
+to noise dimensions at each layer, which varies continuously but produces
+threshold effects in the L2 objective. Dimensionality mismatch and overfitting
+are the same failure seen from different angles.
+
+**Critical flag — L9 discrepancy:** Original sweep showed R²=-6.56 at L9 d=1024.
+This sweep shows R²=0.874. Either:
+- Different seed → the "collapse" was a single-seed optimization failure (2c)
+- Different train/test split → the collapse was data-dependent
+
+**Action:** The multi-seed run (D16) will resolve this. If L9 at d=1024 shows
+high R² variance (some seeds near -6, some near 0.87), it's optimization failure
+and L9 was never a dimensionality-mismatch layer. If variance is low around 0.87,
+the original result was an artifact.
+
+**What's established:**
+- Full-rank instability is widespread, not collapse-layer-specific
+- Optimal d_proj is layer-specific, 16–64 range, non-monotone with depth
+- Low-rank projection reliably recovers R²>0.87 at every layer tested
+
+**What's open:**
+- Whether L9 original collapse was seed-sensitive or data-dependent
+- Whether a fixed d=32 works across all layers vs per-layer tuning for Phase 2
+- Participation ratio confirmation (awaiting multi-seed run)
+

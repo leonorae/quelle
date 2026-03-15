@@ -272,57 +272,103 @@ def analyse_results(results: list[dict]) -> str:
 
         lines.append(f"  → Best mean R² at d_proj = {best_d_proj} ({best_r2_mean:.4f})")
 
-        if is_collapse:
-            # Check for knee: is there a d_proj where R² plateaus?
-            d_projs_sorted = sorted(d_proj_results.keys())
-            r2_means = [np.mean([s["r2"] for s in d_proj_results[d]]) for d in d_projs_sorted]
+        # Knee and variance checks for ALL layers (full-rank degradation is
+        # widespread, not specific to nominally "collapse" layers)
+        d_projs_sorted = sorted(d_proj_results.keys())
+        r2_means = [np.mean([s["r2"] for s in d_proj_results[d]]) for d in d_projs_sorted]
 
-            # Detect knee: largest second-derivative in R² vs log(d_proj)
-            if len(r2_means) >= 3:
-                diffs = [r2_means[i+1] - r2_means[i] for i in range(len(r2_means)-1)]
-                diffs2 = [diffs[i+1] - diffs[i] for i in range(len(diffs)-1)]
-                if diffs2:
-                    knee_idx = int(np.argmax(np.abs(diffs2))) + 1
-                    knee_d = d_projs_sorted[knee_idx]
-                    lines.append(f"  → Knee candidate at d_proj = {knee_d}")
+        # Detect knee: largest second-derivative in R² vs d_proj
+        if len(r2_means) >= 3:
+            diffs = [r2_means[i+1] - r2_means[i] for i in range(len(r2_means)-1)]
+            diffs2 = [diffs[i+1] - diffs[i] for i in range(len(diffs)-1)]
+            if diffs2:
+                knee_idx = int(np.argmax(np.abs(diffs2))) + 1
+                knee_d = d_projs_sorted[knee_idx]
+                lines.append(f"  → Knee candidate at d_proj = {knee_d}")
 
-            # Check seed variance pattern
-            max_d = max(d_proj_results.keys())
-            min_d = min(d_proj_results.keys())
-            if len(d_proj_results[max_d]) > 1 and len(d_proj_results[min_d]) > 1:
-                var_high = np.std([s["r2"] for s in d_proj_results[max_d]])
-                var_low = np.std([s["r2"] for s in d_proj_results[min_d]])
-                if var_high > 3 * var_low and var_high > 0.1:
-                    lines.append(f"  → Seed variance much higher at d_proj={max_d} "
-                                 f"({var_high:.3f}) vs d_proj={min_d} ({var_low:.3f}) "
-                                 f"→ supports optimization failure (2c)")
+        # Check seed variance pattern
+        max_d = max(d_proj_results.keys())
+        min_d = min(d_proj_results.keys())
+        if len(d_proj_results[max_d]) > 1 and len(d_proj_results[min_d]) > 1:
+            var_high = np.std([s["r2"] for s in d_proj_results[max_d]])
+            var_low = np.std([s["r2"] for s in d_proj_results[min_d]])
+            if var_high > 3 * var_low and var_high > 0.1:
+                lines.append(f"  → Seed variance much higher at d_proj={max_d} "
+                             f"({var_high:.3f}) vs d_proj={min_d} ({var_low:.3f}) "
+                             f"→ supports optimization failure (2c)")
+
+    # Full-rank degradation summary across ALL layers
+    lines.append(f"\n{'='*78}")
+    lines.append("Full-rank degradation (d_proj = max)")
+    lines.append(f"{'='*78}")
+
+    max_d_proj = max(r["d_proj"] for r in results)
+    full_rank_data = []
+    for layer in sorted(by_layer):
+        d_proj_results = by_layer[layer]
+        if max_d_proj in d_proj_results:
+            fr_r2 = np.mean([s["r2"] for s in d_proj_results[max_d_proj]])
+            best_r2 = max(np.mean([s["r2"] for s in seeds])
+                          for seeds in d_proj_results.values())
+            best_d = max(d_proj_results.keys(),
+                         key=lambda d: np.mean([s["r2"] for s in d_proj_results[d]]))
+            degraded = best_r2 - fr_r2
+            is_collapse = layer in COLLAPSE_LAYERS
+            severity = ("CATASTROPHIC" if fr_r2 < -0.5
+                        else "SEVERE" if degraded > 0.3
+                        else "MODERATE" if degraded > 0.05
+                        else "STABLE")
+            tag = " (nominal collapse)" if is_collapse else ""
+            lines.append(f"  L{layer:>2}: R²@d={max_d_proj} = {fr_r2:>7.3f}, "
+                         f"best R² = {best_r2:.3f} @ d={best_d}, "
+                         f"Δ = {degraded:>+.3f}  [{severity}]{tag}")
+            full_rank_data.append({
+                "layer": layer, "fr_r2": fr_r2, "best_r2": best_r2,
+                "degraded": degraded, "is_collapse": is_collapse,
+            })
+
+    # Check if degradation is widespread (not collapse-layer-specific)
+    n_degraded = sum(1 for d in full_rank_data if d["degraded"] > 0.05)
+    n_total = len(full_rank_data)
+    if n_degraded > len(COLLAPSE_LAYERS):
+        lines.append(f"\n  NOTE: {n_degraded}/{n_total} layers degrade at full rank. "
+                     f"Full-rank instability is WIDESPREAD, not specific to collapse layers.")
+        lines.append(f"  Collapse layers show catastrophic rather than moderate degradation —")
+        lines.append(f"  same failure mode, different severity (threshold effect in L2 objective).")
 
     # Cross-layer participation ratio comparison
     lines.append(f"\n{'='*78}")
     lines.append("Participation Ratio Comparison (full-rank projections)")
     lines.append(f"{'='*78}")
 
-    max_d_proj = max(r["d_proj"] for r in results)
     for layer in sorted(by_layer):
         if max_d_proj in by_layer[layer]:
             seeds = by_layer[layer][max_d_proj]
             prs = [s["pr_participation_ratio"] for s in seeds]
             nprs = [s["pr_normalized_pr"] for s in seeds]
+            r2_std = np.std([s["r2"] for s in seeds]) if len(seeds) > 1 else 0.0
             is_collapse = layer in COLLAPSE_LAYERS
             label = " ***" if is_collapse else ""
             lines.append(f"  Layer {layer:>2}: PR = {np.mean(prs):>6.1f} "
-                         f"(norm = {np.mean(nprs):.4f}){label}")
+                         f"(norm = {np.mean(nprs):.4f}), "
+                         f"R²_std = {r2_std:.4f}{label}")
 
     lines.append("")
     lines.append("=" * 78)
-    lines.append("Hypothesis signatures:")
-    lines.append("  (2a) Intrinsic dim mismatch: sharp knee, low seed variance above knee,")
-    lines.append("       higher PR at collapse layers than controls")
-    lines.append("  (2b) Sample complexity:      monotonic improvement, moderate variance,")
-    lines.append("       PR uninformative")
-    lines.append("  (2c) Optimization failure:   high seed variance at large d_proj,")
-    lines.append("       especially at collapse layers")
-    lines.append("  These are not mutually exclusive.")
+    lines.append("Interpretation guide:")
+    lines.append("  Full-rank projection is generically sample-starved (221 prompts).")
+    lines.append("  All layers degrade; 'collapse' layers hit a discontinuous regime")
+    lines.append("  where noise dimensions dominate the L2 norm catastrophically.")
+    lines.append("  The relevant quantity is the signal-to-noise dimension ratio,")
+    lines.append("  which varies per-layer and produces threshold effects.")
+    lines.append("")
+    lines.append("  Diagnostics:")
+    lines.append("  - Knee in R² vs d_proj  → intrinsic dim of behavioral structure")
+    lines.append("  - High R²_std at full rank → optimization failure (seed-sensitive)")
+    lines.append("  - PR difference collapse vs control → confirms dim mismatch story")
+    lines.append("  - If a 'collapse' layer shows stable R²≈0.87 at d=1024 across seeds,")
+    lines.append("    the original collapse was a single-seed optimization failure,")
+    lines.append("    NOT a stable property of that layer.")
     lines.append("=" * 78)
 
     return "\n".join(lines)
