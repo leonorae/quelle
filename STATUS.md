@@ -3,7 +3,7 @@
 > Quick briefing for agents and humans. Read this instead of traversing
 > the full wiki to understand what is happening right now.
 >
-> **Updated**: 2026-03-15
+> **Updated**: 2026-03-15 (VVVVVV reframe)
 
 ---
 
@@ -11,8 +11,8 @@
 
 | Experiment | Status | Owner | Next action |
 |---|---|---|---|
-| `VVVVVV` | ready to run | — | Launch on Colab (Phase 0: setup → train → probes) |
-| `behavioral-projections` | active | — | Complete tuned lens training, frame_ratio curve |
+| `VVVVVV` | Phase 0 ready; Phases 1-4 conjectured dead | — | Train d12, run Phase 0 diagnostics (interpretability, not architecture) |
+| `behavioral-projections` | active | — | Phase 0.6 (ve table analysis) + frame_ratio curve |
 | `vsa-encoding-fidelity` | needs fix | — | Implement multiplicative binding, re-run probe |
 | `curiosity-vs-random` | needs lit review | — | Survey active learning literature for low-budget regime |
 | `cln-iteration-dynamics` | needs lit review | — | Survey looped transformer ablations |
@@ -41,6 +41,16 @@
 
 ---
 
+## Recent Change: VVVVVV Reframe (2026-03-15)
+
+The multi-ve architecture experiment (VVVVVV Phases 1-4) is `conjectured dead`.
+Three reasons: gate-input may read spike channels (not content), ve_local is
+redundant with attention, and the interesting question shifted from architecture
+to interpretability. Phase 0 diagnostics still run — they now serve the
+interpretability angle. Ve table content analysis moves to behavioral-projections
+as Phase 0.6. See `wiki/findings/vvvvvv-reframe.md` and
+`wiki/concepts/factorization-taxonomy.md`.
+
 ## Recent Change: Crystal-Lattice Decomposition (2026-03-15)
 
 The crystal-lattice experiment stacked four unvalidated ideas in a linear
@@ -67,18 +77,22 @@ fails on its own terms.
 ## Dependency Graph (Updated)
 
 ```
-VVVVVV Phase 0 (ready to run)
-    └─→ probe-signal-comparison (needs d12 checkpoint)
+VVVVVV Phase 0 (ready to run — interpretability, not architecture)
+    ├─→ probe-signal-comparison (needs d12 checkpoint)
+    └─→ ve table content analysis (behavioral-projections Phase 0.6)
+         └─→ [if multi-modal structure found] VVVVVV Phases 1-4 revival
 
 behavioral-projections (active, independent)
+    ├─→ frame_ratio curve (blocked on tuned lens)
+    └─→ Phase 0.6 ve table analysis (needs nanochat checkpoint)
 
 vsa-encoding-fidelity (needs fix, independent)
 curiosity-vs-random (needs lit review, independent)
 cln-iteration-dynamics (needs lit review, independent)
 ```
 
-No linear chains. All threads except probe-signal-comparison are independently
-actionable.
+No linear chains. VVVVVV Phases 1-4 conjectured dead unless ve table analysis
+motivates revival.
 
 ---
 
@@ -96,6 +110,7 @@ experiment's `colab.yaml`. Set `EXPERIMENT` in the config cell.
 
 - VVVVVV Phase 0: Do spike channels in nanochat (relu²) fall in first 32 indices? (→ Q0.1)
 - VVVVVV Phase 0: Is BOS residual document-varying or near-constant? (→ Q0.2)
+- **Ve table**: Do ve rows cluster by syntactic function? Does ve cosine correlate with bisimulation distance? What's the effective rank?
 - VSA: Does multiplicative binding fix the topology encoding problem?
 - Active learning: Does the literature already resolve curiosity-vs-random at small budgets?
 - Iterative refinement: Do looped-transformer ablations already characterize iteration dynamics?

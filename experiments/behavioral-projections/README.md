@@ -41,6 +41,16 @@ for early layers).
 
 ## Priority Order
 
+0.6. **Ve table content analysis** — analyze nanochat's existing ve table as
+   a cheap readout of token-type retrieval priors. Compare cosine structure
+   with bisimulation distance. Tests whether the factorization already provides
+   what the projection suite is trying to learn.
+   - Needs: any trained nanochat checkpoint (same as VVVVVV Phase 0)
+   - Cost: no training, matrix analysis only
+   - Questions: Do rows cluster by syntactic function? Does ve cosine correlate
+     with bisimulation distance? What's the effective rank? Do alternating
+     ve layers differ in encoding?
+   - See: `wiki/findings/vvvvvv-reframe.md`, `wiki/concepts/factorization-taxonomy.md`
 1. **Finish frame_ratio curve** across all 24 Pythia-410m layers
    - Blocked on tuned lens training completion
    - `src/lens_delta_analysis.py` spec written
@@ -51,8 +61,9 @@ for early layers).
 5. **Spectral-to-topology mapping on small LNNs** (parallel, independent)
 6. **Design between-regime LNN predictors** (synthesis — after 1-5)
 
-Steps 1-3: existing infrastructure. Steps 4-5: parallel, independently
-publishable. Step 6: the synthesis.
+Steps 0.6 and 1 can run in parallel once checkpoints exist. Steps 1-3: existing
+infrastructure. Steps 4-5: parallel, independently publishable. Step 6: the
+synthesis.
 
 ## Target Models
 
@@ -80,7 +91,9 @@ wiring topology. Architecture designed from diagnostic, not searched.
   of the projection suite comparison
 - `tools/analysis/geometry/`: concentration as baseline comparison for
   bisimulation probe
-- VVVVVV: ve decomposition is the same timescale separation problem
+- VVVVVV: ve decomposition is the same timescale separation problem. The ve
+  table may be a free readout of part of what bisimulation measures — Phase 0.6
+  tests this directly. See `wiki/concepts/factorization-taxonomy.md`
 - SAE dark matter: intersection of projection null spaces isolates
   endogenous scaffolding (geometric analog of attention sinks)
 

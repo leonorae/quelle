@@ -156,6 +156,45 @@ automatically double (8→16) so total batch size (524,288 tokens) is preserved.
 
 ---
 
+---
+
+## 2026-03-15
+
+### D12 — Multi-ve architecture (Phases 1-4) conjectured dead
+
+**Decision:** Phases 1-4 (k>1 tables, symmetry-breaking, assumptive pressures,
+task evaluation) are `conjectured dead`. Phase 0 diagnostics proceed unchanged.
+
+**Rationale:** Three converging reasons: (1) gate-input problem — spike channels
+may make multi-table routing structurally broken; (2) ve_local theoretically weak
+— redundant with attention's implicit local conditioning; (3) the interesting
+question shifted from architecture optimization to interpretability (what does the
+existing table contain?). See `wiki/findings/vvvvvv-reframe.md`.
+
+**Kill condition:** Phase 0 Q0.1 shows >50% spike-channel overlap with [:32].
+**Revival condition:** Ve table analysis reveals multi-modal structure justifying
+multiple tables.
+
+**Implication:** Phase 0 Q0.1-3 still run as planned — they now serve
+interpretability goals, not just architecture gates. D5's gated decisions
+(projection gate §6.1, BOS-conditioned table §6.2) are reinterpreted as
+interpretability conclusions rather than architecture triggers.
+
+---
+
+### D13 — Ve table content analysis moves to behavioral-projections
+
+**Decision:** Analyzing the existing ve table (clustering, effective rank,
+comparison with bisimulation distance) is scoped as behavioral-projections
+Phase 0.6, not a VVVVVV phase.
+
+**Rationale:** The question "what does the ve table encode?" is a projection
+comparison question — it tests whether the factorization already provides what
+the bisimulation probe is trying to learn. Natural home is behavioral-projections.
+Requires only a trained checkpoint (same dependency as Phase 0).
+
+---
+
 ### D9 — run_phase0.py uses nanochat's checkpoint_manager.build_model()
 
 **Decision:** `run_phase0.py` loads checkpoints via `nanochat.checkpoint_manager.build_model()`

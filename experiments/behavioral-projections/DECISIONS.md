@@ -30,3 +30,17 @@ architecture needs a different design principle.
 Pythia-410m for development (fast, 24 layers, well-studied).
 Qwen2.5-7B-Instruct as primary target.
 No GPT-2 (less interpretability infrastructure, older tokenizer).
+
+## D5: Ve table analysis as Phase 0.6 (2026-03-15)
+
+The nanochat ve table is a `[vocab × kv_dim]` matrix of context-collapsed
+retrieval priors. Analyzing it is scoped here (not VVVVVV) because the question
+is "does this factorization already provide what the projection suite measures?"
+— a projection comparison question.
+
+This is cheap (no training, matrix analysis), runs on any nanochat checkpoint,
+and can proceed in parallel with frame_ratio work (step 1). If ve cosine
+structure correlates with bisimulation distance, the ve table is a free readout
+and the projection suite's value-add narrows to what ve doesn't capture.
+
+See `wiki/findings/vvvvvv-reframe.md` for full rationale.
