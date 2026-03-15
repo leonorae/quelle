@@ -43,6 +43,19 @@ When ending a session mid-task, include in your session entry:
 Generic handoffs ("continuing work on X") are worse than no handoff. Be specific
 or don't bother.
 
+## Traps
+
+Use `# TRAP:` comments in code and configs when you discover something that
+looks like it should work one way but doesn't. The note stays in the file
+where the next agent will encounter it naturally.
+
+```python
+lr: 0.0001  # TRAP: PyYAML parses 1e-4 as string, use explicit float
+```
+
+Not for decisions, not for findings — just for things that would bite
+someone who doesn't know.
+
 ## Conventions
 
 - File name: `<agent-id>.md` (e.g. `claude-sonnet-4-6.md`, `claude-opus-4-6.md`)
