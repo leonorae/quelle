@@ -59,3 +59,38 @@ Only repo-level structural decisions live in `wiki/humans/decisions.md`.
 **Rationale**: Prevents the global decisions file from accumulating
 experiment-specific implementation details that are irrelevant to agents working
 on other experiments.
+
+---
+
+## 2026-03-15 — Session protocol: strict checklists, loose everything else
+
+**Decision**: Added strict startup and session-end checklists to
+`wiki/agents/README.md`. These are the only mandatory process steps. Everything
+else in CLAUDE.md's agent session protocol remains aspirational guidance.
+
+**What's strict** (3 startup items, 4 end items — see `wiki/agents/README.md`):
+- Read STATUS.md, experiment README, recent agent sessions.
+- Update experiment status, STATUS.md, agent notes, RESULTS.md.
+
+**What's deliberately left loose**:
+- WIP checkpoint cadence (~30min commits). Aspirational. Not enforced.
+- wiki/findings/ contributions. Judgment call per session.
+- Handoff note depth. "Be specific or don't bother" — no template.
+
+**What was considered and rejected**:
+- JSON schema validation for session logs (tooling overhead, no demonstrated need).
+- Automated handoff chaining (repo is small enough that 2 files give full context).
+- Centralized context management systems (enterprise solution for a 1-2 agent
+  research repo).
+
+**Rationale**: The trends in multi-agent session management (2026) skew toward
+enterprise coordination tooling — schema validation, MCP servers, centralized
+state stores. These solve real problems at scale but add process overhead that
+fights research velocity at this repo's size. The existing pattern (STATUS.md +
+agent notes + experiment READMEs) works. The gap was not tooling but clarity:
+which steps are mandatory vs aspirational. Now that's explicit.
+
+**Reassess**: 2026-04-15, or sooner if: (a) sessions start crashing and losing
+work (→ enforce WIP checkpoints), (b) a third agent type joins and handoffs
+degrade (→ consider structured handoff format), or (c) the repo grows past ~10
+active experiments (→ consider richer indexing).
