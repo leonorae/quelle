@@ -280,7 +280,9 @@ def try_plot_comparison(
     c3_by_layer = {r["layer"]: r for r in c3}
     all_layers = sorted(set(c1_by_layer) | set(c2_by_layer) | set(c3_by_layer))
 
-    # --- R² comparison ---
+    # --- R² comparison (clipped floor for readability) ---
+    R2_FLOOR = -1.5  # clip extreme negatives for visual clarity
+
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 5))
 
     layers_arr = np.array(all_layers)
@@ -288,9 +290,29 @@ def try_plot_comparison(
     c2_r2 = np.array([c2_by_layer.get(l, {}).get("r2", np.nan) for l in all_layers])
     c3_r2 = np.array([c3_by_layer.get(l, {}).get("learned_r2", np.nan) for l in all_layers])
 
-    ax1.plot(layers_arr, c1_r2, "o-", label="C1: Standard Lens", alpha=0.8)
-    ax1.plot(layers_arr, c2_r2, "s-", label="C2: Pairwise Lens", alpha=0.8)
-    ax1.plot(layers_arr, c3_r2, "^-", label="C3: Bisim Probe", alpha=0.8)
+    # Clip for display, annotate clipped points
+    c1_r2_clip = np.clip(c1_r2, R2_FLOOR, None)
+    c2_r2_clip = np.clip(c2_r2, R2_FLOOR, None)
+    c3_r2_clip = np.clip(c3_r2, R2_FLOOR, None)
+
+    ax1.plot(layers_arr, c1_r2_clip, "o-", label="C1: Standard Lens", alpha=0.8)
+    ax1.plot(layers_arr, c2_r2_clip, "s-", label="C2: Pairwise Lens", alpha=0.8)
+    ax1.plot(layers_arr, c3_r2_clip, "^-", label="C3: Bisim Probe", alpha=0.8)
+
+    # Mark clipped points with actual values
+    for layers_a, r2_raw, r2_clip, color in [
+        (layers_arr, c1_r2, c1_r2_clip, "C0"),
+        (layers_arr, c2_r2, c2_r2_clip, "C1"),
+        (layers_arr, c3_r2, c3_r2_clip, "C2"),
+    ]:
+        for i, (raw, clipped) in enumerate(zip(r2_raw, r2_clip)):
+            if not np.isnan(raw) and raw < R2_FLOOR:
+                ax1.annotate(
+                    f"{raw:.1f}", (layers_a[i], clipped),
+                    textcoords="offset points", xytext=(0, -12),
+                    fontsize=7, ha="center", color=color,
+                )
+
     ax1.set_xlabel("Layer")
     ax1.set_ylabel("R²")
     ax1.set_title("Pairwise KL Prediction — R²")
@@ -427,6 +449,37 @@ def main():
     print("  → Direct pairwise metric captures something the")
     print("    decode-then-compare pipeline can't, even optimized for pairs.")
     print(f"\nAll results saved to {output_dir}")
+
+
+def plot_from_json():
+    """Generate plots from previously saved comparison_results.json."""
+    parser = argparse.ArgumentParser(description="Plot from saved comparison results")
+    parser.add_argument("results_json", help="Path to comparison_results.json")
+    parser.add_argument("--output-dir", default=None,
+                        help="Output directory (default: same as input)")
+    args = parser.parse_args()
+
+    results_path = Path(args.results_json)
+    output_dir = Path(args.output_dir) if args.output_dir else results_path.parent
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    with open(results_path) as f:
+        rows = json.load(f)
+
+    # Reconstruct per-condition dicts matching the format try_plot_comparison expects
+    c1, c2, c3 = [], [], []
+    for r in rows:
+        layer = r["layer"]
+        c1.append({"layer": layer, "r2": r.get("c1_r2"), "spearman_rho": r.get("c1_spearman")})
+        c2.append({"layer": layer, "r2": r.get("c2_r2"), "spearman_rho": r.get("c2_spearman")})
+        c3.append({
+            "layer": layer,
+            "learned_r2": r.get("c3_learned_r2"),
+            "learned_spearman": r.get("c3_learned_spearman"),
+        })
+
+    try_plot_comparison(c1, c2, c3, output_dir)
+    print(f"Plots written to {output_dir}")
 
 
 if __name__ == "__main__":
