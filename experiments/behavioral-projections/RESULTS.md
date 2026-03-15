@@ -18,6 +18,7 @@ tags: [tuned-lens, pairwise-lens, bisimulation, comparison]
   - C1: Standard Tuned Lens — per-layer Linear(d,V), trained on per-prompt KL
   - C2: Pairwise Tuned Lens — same architecture, trained on pairwise KL (MSE)
   - C3: Bisimulation Probe — learned projection P, L2 norm predicts KL
+  - C3 Ridge: Ridge regression baseline (1D projection from activation differences)
 
 ## Per-Layer Results
 
@@ -51,52 +52,92 @@ tags: [tuned-lens, pairwise-lens, bisimulation, comparison]
 
 ## Findings
 
-### F1: Pairwise structure is real — C2 >> C1 everywhere
+### F1: Pairwise structure is real — C2 >> C1 everywhere [observed]
 
 C1 (standard tuned lens) has negative or near-zero R² at most layers despite
 Spearman ρ of 0.88–0.96. The lens ranks pairs correctly but predicts wrong
 magnitudes. C2 (same architecture, pairwise objective) achieves R² > 0.6 at
 most layers above layer 2. **The pairwise objective, not the architecture,
-is what matters.** This validates the bisimulation framing.
+is what matters.** This validates the bisimulation framing: relational
+structure exists in activation space and a pairwise training signal recovers it.
 
-### F2: C3 dominates early layers (0–8), C2 dominates mid-to-late (9–24)
+### F2: C3 has higher R² than C2 at early layers, competitive through ~8 [observed]
 
-Direct geometric projection (C3) outperforms decode-then-compare (C2) at
-layers 0–8. By layer 9, C2 takes over. Interpretation: early representations
-have pairwise geometric structure best captured by direct projection; later
-representations become logit-aligned enough that decoding is the natural basis.
+C3 R² exceeds C2 R² at layers 0–8 (C3 best by R²). The margin is large only
+at layers 0–1 where C2 R² is strongly negative (−1.07). By layer 2, C2 R²
+jumps to 0.61 vs C3 at 0.75 — close. The claim that "direct geometric
+projection captures structure decode-then-compare misses" is [conjectured];
+the data shows C2 performs worse early, not why. Possible explanations include
+logit-alignment developing gradually, but this is untested.
 
-### F3: C3 has catastrophic collapses at specific layers
+### F3: C3 collapses are structured, not random [observed]
 
 C3 R² goes deeply negative at layers 9 (−6.6), 11 (−3.6), 16 (−3.4), and
-17 (−10.4), while Spearman ρ stays reasonable (0.80–0.85). The probe ranks
-pairs correctly but produces wildly wrong magnitudes at these layers. This is
-consistent with overfitting to outlier pairs — the non-convex L2-norm
-objective (see D15) amplifies a few large-distance pairs, inflating MSE.
-Ridge (C2) is naturally regularized against this.
+17 (−10.4), while Spearman ρ stays reasonable (0.80–0.85). The probe
+preserves rank order but produces wildly wrong magnitude predictions.
 
-### F4: High ρ / low R² pattern is universal for C1
+The collapse layers are not random — they may correspond to architectural
+boundaries (attention pattern shifts, MLP gating transitions) where the
+activation subspace changes character. [conjectured] The L2 objective becomes
+non-convex in a particularly degenerate way at these layers — saddle points
+or curvature pathology in the projection, not just outlier amplification.
+The rank sweep (D16) will distinguish: if lower d_proj stabilizes R² without
+killing Spearman, it's a curvature/degeneracy problem; if all ranks fail,
+it's insufficient data.
+
+### F4: C3 Ridge is dead — wrong inductive bias [observed]
+
+Ridge regression (1D projection via coefficient vector) produces flat negative
+R² (~−0.06) and Spearman ρ ≈ 0 across all 25 layers. This is not "suboptimal"
+or "naturally regularized" — it is zero signal. Ridge cannot recover any
+structure, ranking or otherwise.
+
+This is informative: the behavioral geometry is not 1D. A single linear
+direction from activation differences to scalar KL captures nothing. The
+learned C3 projection (multi-dimensional, d_proj=1024) at least gets ranking
+right everywhere (ρ > 0.8). The structure requires multiple dimensions to
+express — which is why the rank sweep matters.
+
+### F5: High ρ / low R² pattern is universal for C1 [observed]
 
 The ρ–R² gap in C1 is not a middle-layer artifact — it persists from layer 0
 to layer 24. Even at the final layer, C1 R² = 0.65 vs C2 R² = 0.93.
 Independent decoding systematically distorts pairwise distance magnitudes.
 
+## Thread State
+
+| Status | Item |
+|--------|------|
+| [observed] | C2 > C1 at every layer — pairwise optimization recovers relational structure standard tuned lens misses |
+| [observed] | C3 > C2 at layers 0–1 clearly, competitive through ~8, collapses at 9/11/16/17 |
+| [observed] | C3 ridge: zero signal throughout — wrong method, not just suboptimal |
+| [observed] | C3 Spearman robust despite R² collapse — rank preserved, scale broken |
+| [conjectured] | Collapse at 9/11/16/17 is architectural boundary effect, not pure outlier sensitivity |
+| [conjectured] | Early C3 advantage = geometric structure not accessible through logit decoding |
+| [open] | Rank sweep at collapse layers — does lower rank stabilize R²? (D16, `diagnose_c3_collapses.py`) |
+| [open] | Whether logit-alignment explanation for C2 dominance in mid-late layers holds |
+| [dead] | C3 ridge as probe method |
+| [designed] | Phase 2 iterative peeling: C2 for layer selection, stabilized C3 as peeling operator |
+
 ## Caveats
 
 - **Bootstrap corpus only (221 prompts).** Results may shift substantially on
   the full 7k corpus. The bootstrap set has limited behavioral diversity.
-- **C3 instability** may be a small-corpus artifact. The learned projection has
-  more parameters to overfit with only ~24k pairs.
+- **C3 instability** may be partly a small-corpus artifact (learned projection
+  has more parameters than ~24k pairs can constrain at full rank), but the
+  structured pattern of collapse layers suggests it is not purely data-limited.
 - **No rank sweep yet.** C3 used full-rank (d_proj=1024). Lower ranks may
-  stabilize the collapses.
+  stabilize the collapses. Diagnostic script ready: `src/diagnose_c3_collapses.py`.
 
 ## Next Steps
 
-1. **Diagnose C3 collapses:** Run rank sweep at collapse layers (9, 11, 16, 17).
-   If lower-rank projections stabilize R², add weight decay or explicit rank
-   constraint.
+1. **Run rank sweep at collapse layers** (`diagnose_c3_collapses.py`, D16).
+   Tests dimensionality-mismatch vs overfitting. If lower d_proj stabilizes R²
+   at collapse layers → rank-constrain C3. If all ranks fail → need more data.
 2. **Rerun on full corpus** (7k prompts) to confirm findings scale.
 3. **Phase 2 gate: MET.** Both C2 and C3 exceed R² > 0.3 at middle layers.
-   Iterative peeling is worth pursuing — recommend using C2 (pairwise lens)
-   as the more stable tool.
+   Iterative peeling (INLP) requires a projection matrix — C2 (decode-then-compare)
+   doesn't provide one. Use C2 to identify which layers have structure worth
+   peeling, then use a stabilized C3 (rank-constrained or regularized) as the
+   actual peeling operator.
 4. **Record in wiki/findings/** after full-corpus confirmation.
