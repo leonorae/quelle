@@ -1,0 +1,41 @@
+# MLP Context-Steering — Default Configuration
+
+model:
+  name: "pythia-410m"
+  device: "cuda"
+
+prompts:
+  # Source for prompt corpus. Options:
+  #   - path to a local .txt or .jsonl file (one document per line)
+  #   - "pile-val" for The Pile validation set (via HuggingFace)
+  #   - "openwebtext" for OpenWebText (via HuggingFace)
+  source: "pile-val"
+  n_prompts: 500
+  seq_len: 2048          # TRAP: must match model's training context length
+  min_length: 2048       # skip prompts shorter than this (don't pad)
+
+baseline:
+  batch_size: 4          # prompts per forward pass (adjust for GPU memory)
+  output_dir: "outputs/baseline"
+
+ablation:
+  variants:
+    - "strong"
+    - "surgical"
+  batch_size: 4
+  output_dirs:
+    strong: "outputs/ablated_strong"
+    surgical: "outputs/ablated_surgical"
+
+analysis:
+  output_dir: "outputs/analysis"
+  correlation_bootstrap_samples: 10000   # for 95% CI on cross-prompt correlation
+
+controls:
+  permutation:
+    n_seeds: 5           # run permutation control with different random seeds
+    output_dir: "outputs/control_permutation"
+  layer_specific:
+    output_dir: "outputs/control_layer_specific"
+  decomposition:
+    output_dir: "outputs/control_decomposition"

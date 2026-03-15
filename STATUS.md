@@ -16,6 +16,7 @@
 | `vsa-encoding-fidelity` | needs fix | — | Implement multiplicative binding, re-run probe |
 | `curiosity-vs-random` | needs lit review | — | Survey active learning literature for low-budget regime |
 | `cln-iteration-dynamics` | lit review complete | — | Design experiment (Option A: small looped transformer on arithmetic/geometric task) |
+| `mlp-context-steering` | scaffolded | — | Implement Phase 0 baseline collection |
 | `probe-signal-comparison` | planned | — | Needs VVVVVV d12 checkpoint |
 
 ## Decomposed
@@ -89,6 +90,9 @@ behavioral-projections (active, independent)
 vsa-encoding-fidelity (needs fix, independent)
 curiosity-vs-random (needs lit review, independent)
 cln-iteration-dynamics (needs lit review, independent)
+
+mlp-context-steering (scaffolded, independent)
+    └─→ Pythia-410m via TransformerLens, no dependencies on other experiments
 ```
 
 No linear chains. VVVVVV Phases 1-4 conjectured dead unless ve table analysis

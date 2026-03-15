@@ -1,0 +1,14 @@
+# Large files — per-prompt activation measurements
+outputs/baseline/*.pt
+outputs/ablated_*/*.pt
+outputs/control_*/*.pt
+
+# Figures are regenerable
+outputs/analysis/figures/
+
+# Prompt cache
+data/
+
+# Python
+__pycache__/
+*.pyc
