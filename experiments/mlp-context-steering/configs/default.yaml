@@ -1,0 +1,35 @@
+# Default config for mlp-context-steering
+# See DECISIONS.md for rationale behind key choices.
+
+model:
+  name: "gpt2-small"          # TransformerLens model name
+  device: "cuda"               # "cuda" or "cpu"
+
+data:
+  source: "pile-validation"    # Dataset source
+  n_prompts: 500               # Number of prompts to sample
+  max_seq_len: 128             # Max tokens per prompt
+  seed: 42                     # Reproducibility
+
+collection:
+  batch_size: 4
+  cache_keys:                  # TransformerLens cache keys to collect
+    - "resid_post"             # Residual stream after each layer
+    - "mlp_out"                # MLP output per layer
+    - "pattern"                # Attention patterns per layer
+
+ablation:
+  mode: "strong"               # "strong" (zero entire MLP) or "surgical"
+  target_layers: null          # null = all layers; or list like [0, 3, 5]
+  surgical_neurons: null       # For surgical mode: list of neuron indices
+
+metrics:
+  erank: true
+  sink_intensity: true
+  max_activation: true
+  sink_token_index: 0          # Token index for sink intensity (usually BOS)
+
+output:
+  dir: "outputs/"
+  save_raw_metrics: true
+  save_summary: true
