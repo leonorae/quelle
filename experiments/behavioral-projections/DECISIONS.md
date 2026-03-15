@@ -362,3 +362,29 @@ for the rank sweep.
 
 **Note:** The L2 norm makes the loss non-convex in P even though the
 architecture is linear. Ridge avoids this by predicting scalar KL directly.
+
+---
+
+## 2026-03-15
+
+### D16 — Targeted rank sweep for C3 collapse diagnosis
+
+**Decision:** Run rank sweep only at collapse layers (9, 11, 16, 17) plus
+control layers (6, 12, 20), with d_proj grid extended down to 4.
+
+**Motivation:** C3 has catastrophic R² collapses at layers 9, 11, 16, 17
+while Spearman ρ stays reasonable. Ridge (1D) captures nothing at any layer.
+Two competing hypotheses:
+
+1. **Overfitting:** 221-prompt corpus produces ~24k pairs, insufficient for
+   full-rank (d=1024) projection. Collapses are random failures.
+2. **Dimensionality mismatch:** At collapse layers, behavioral structure lives
+   in fewer dimensions. Full-rank projection fits noise in unused dimensions;
+   L2 norm is dominated by noise dimensions. Lower d_proj should improve R².
+
+**Diagnostic:** If lower d_proj dramatically improves R² at collapse layers
+but not at control layers → (2). If all ranks fail → (1), need more data.
+
+**Implementation:** `src/diagnose_c3_collapses.py` with config override
+`configs/collapse_sweep.yaml`.
+

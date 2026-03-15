@@ -1,0 +1,23 @@
+# Targeted rank sweep config for diagnosing C3 collapses.
+# Override: restrict to collapse layers + controls, finer d_proj grid.
+#
+# Usage:
+#   python -m src.diagnose_c3_collapses --config configs/default.yaml \
+#       --override configs/collapse_sweep.yaml \
+#       --cache data/activations/pythia-410m/
+
+# Layers to sweep:
+#   Collapse: 9, 11, 16, 17
+#   Controls: 6 (C3 best), 12 (C3 good), 20 (C2 best)
+layers: [6, 9, 11, 12, 16, 17, 20]
+
+# Finer d_proj grid — include very low ranks to test dimensionality hypothesis
+rank_sweep: [1024, 512, 256, 128, 64, 32, 16, 8, 4]
+
+# Match main comparison training setup
+projection:
+  lr: 0.001
+  epochs: 50
+  batch_size: 256
+  weight_decay: 0.01
+  patience: 10
