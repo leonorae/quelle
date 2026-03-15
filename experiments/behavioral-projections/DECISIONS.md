@@ -369,22 +369,45 @@ architecture is linear. Ridge avoids this by predicting scalar KL directly.
 
 ### D16 — Targeted rank sweep for C3 collapse diagnosis
 
-**Decision:** Run rank sweep only at collapse layers (9, 11, 16, 17) plus
-control layers (6, 12, 20), with d_proj grid extended down to 4.
+**Decision:** Run rank sweep at collapse layers (9, 11, 16, 17) plus
+control layers (6, 12, 20), with multiple seeds per (layer, d_proj) and
+participation ratio measurement.
 
 **Motivation:** C3 has catastrophic R² collapses at layers 9, 11, 16, 17
 while Spearman ρ stays reasonable. Ridge (1D) captures nothing at any layer.
-Two competing hypotheses:
+Three competing (non-exclusive) hypotheses:
 
-1. **Overfitting:** 221-prompt corpus produces ~24k pairs, insufficient for
-   full-rank (d=1024) projection. Collapses are random failures.
-2. **Dimensionality mismatch:** At collapse layers, behavioral structure lives
-   in fewer dimensions. Full-rank projection fits noise in unused dimensions;
-   L2 norm is dominated by noise dimensions. Lower d_proj should improve R².
+**(2a) Intrinsic dimensionality mismatch:** Behavioral structure at collapse
+layers lives in ~30–50 dims; the 1024-dim projection has ~1000 noise dims
+dominating the L2 norm. **Signature:** sharp knee in R² vs d_proj at intrinsic
+dim, then plateau. Low seed variance above the knee. Higher participation
+ratio at collapse layers than controls.
 
-**Diagnostic:** If lower d_proj dramatically improves R² at collapse layers
-but not at control layers → (2). If all ranks fail → (1), need more data.
+**(2b) Sample complexity failure:** 221 prompts → ~24k pairs is insufficient
+to estimate a 1024-dim projection regardless of intrinsic dim. **Signature:**
+monotonic R² improvement as d_proj shrinks (fewer params = better
+generalization), no knee. PR uninformative.
+
+**(2c) Optimization failure:** L2 norm makes loss non-convex; at high d_proj
+the landscape has more saddle points. Learned projection finds bad local
+minimum that fits a few large-distance pairs (preserving rank ≈ Spearman)
+while failing on scale (collapsing R²). **Signature:** high R² variance
+across seeds at the same d_proj, especially at collapse layers and large
+d_proj.
+
+**Diagnostics (all run in single script):**
+1. Rank sweep: d_proj ∈ {8, 16, 32, 64, 128, 256, 512, 1024} — enough
+   resolution to detect a knee in the 32–256 range
+2. Multiple seeds (default 3, flag for 5) per (layer, d_proj) — measures
+   optimization variance to test (2c)
+3. Participation ratio of learned projection's singular values at each
+   (layer, d_proj) — tests whether intrinsic dim differs at collapse layers
 
 **Implementation:** `src/diagnose_c3_collapses.py` with config override
 `configs/collapse_sweep.yaml`.
+
+**Outputs:**
+- `collapse_rank_sweep.png`: R², ρ, PR vs d_proj with error bands
+- `seed_variance.png`: R² std across seeds per d_proj (collapse vs control)
+- `diagnosis_summary.txt`: automated hypothesis evaluation
 

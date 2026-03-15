@@ -1,5 +1,6 @@
 # Targeted rank sweep config for diagnosing C3 collapses.
-# Override: restrict to collapse layers + controls, finer d_proj grid.
+# Override: restrict to collapse layers + controls, finer d_proj grid,
+# multiple seeds for optimization variance measurement.
 #
 # Usage:
 #   python -m src.diagnose_c3_collapses --config configs/default.yaml \
@@ -11,8 +12,14 @@
 #   Controls: 6 (C3 best), 12 (C3 good), 20 (C2 best)
 layers: [6, 9, 11, 12, 16, 17, 20]
 
-# Finer d_proj grid — include very low ranks to test dimensionality hypothesis
-rank_sweep: [1024, 512, 256, 128, 64, 32, 16, 8, 4]
+# d_proj grid — enough resolution to detect a knee in the 32–256 range
+# where intrinsic behavioral dim likely lives (if (2a) is correct)
+rank_sweep: [1024, 512, 256, 128, 64, 32, 16, 8]
+
+# Seeds per (layer, d_proj) — measures optimization variance (2c).
+# 3 is minimum to get a meaningful std; 5 is better but 3x more compute.
+# Use --seeds 5 on the command line for higher confidence.
+n_seeds: 3
 
 # Match main comparison training setup
 projection:
